@@ -409,6 +409,13 @@ This lets you give specific users or groups custom access to files, beyond owner
 
 
 
+# What is SCP and rsync
+-> Both will copy the files from local to remote
+-> After make changes in local file if you try to copy 
+-> SCP will copy the entire file
+-> rsync will only copy the changes in local file to remote
+
+
 Top Linux commands that are commonly used in DevOps: ♾
 
 | #  | Command      | Description                          | Example                                       |
