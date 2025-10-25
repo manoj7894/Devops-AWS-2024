@@ -38,6 +38,27 @@ AWS App Runner is configured to automatically pull and deploy the latest image f
 This ensures zero-downtime, scalable deployment of the backend service.
 
 
+# Real-Time Challenges Faced While Implementing the CI/CD Pipeline
+-> While building and maintaining our Bitbucket CI/CD pipeline for AWS App Runner deployments, I encountered several real-world challenges that helped me enhance the overall pipeline design and reliability.
+
+1. Handling Environment-Specific Configurations
+Managing environment variables across multiple environments such as Dev, UAT, Staging, and Production was a key challenge.
+To address this, I used Bitbucket Deployment Variables to maintain separate configurations for each environment, ensuring smooth and isolated deployments.
+
+2. Secure Management of Secrets
+Storing and managing sensitive information like AWS access keys and secret keys securely was crucial.
+I used Bitbucket Secure Environment Variables to protect these secrets and prevent accidental exposure in logs or code.
+
+3. Trivy Scan Failures Due to Limited Disk Space
+Initially, Trivy security scans failed because of limited disk space during the pipeline execution.
+I optimized the build cache and excluded unnecessary directories from the scan to resolve this issue.
+
+4. Memory Issues During Docker Builds
+We encountered memory constraints while building large Docker images in the CI environment.
+The issue was mitigated by splitting the Docker build into multiple stages and using self-hosted runners with higher resource capacity.
+
+
+
 # I have faced some Challenges while i am deploying the backend application in Apprunner services
 -> At Starting stage App Runner used to failed to deploy due to Dockerfile or image issues from ECR 
    for that we should run the docker image build in our local before push into ECR.
