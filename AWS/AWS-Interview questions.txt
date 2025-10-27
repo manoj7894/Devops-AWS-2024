@@ -1,12 +1,67 @@
+# What is Cloud
+-> Cloud (short for cloud computing) means using the internet to store, manage, and process data — instead of using your local computer or on-premise servers.
+-> The cloud is like renting computing power, storage, or services from a data center managed by someone else (like AWS, Google Cloud, oracle, or Microsoft Azure).
+
+-> All the above Cloud services that allow businesses to build, run and manage the wide range of applications and workloads in a highly format, secure and scalable environment.
+
+-> These services are categorized into three parts
+| Category                               | Description                              | Examples                          |
+| -------------------------------------- | ---------------------------------------- | --------------------------------- |
+| **IaaS** (Infrastructure as a Service) | Rent virtual machines, storage, networks | AWS EC2, Azure VM                 |
+| **PaaS** (Platform as a Service)       | Deploy apps without managing servers     | AWS App Runner, Google App Engine |
+| **SaaS** (Software as a Service)       | Use ready-made apps online               | Gmail, Zoom, Salesforce           |
+
+
+# What is a Region?
+-> A region is a geographical area — like Asia Pacific (Mumbai) — where AWS hosts its cloud infrastructure.
+Each region is completely independent, with its own:
+Power, cooling, and networking
+-> Each region having one or more Availability Zones (AZs)
+-> Each AZ represents a separate data center (or cluster of data centers) within the same region.
+
+# What is an Availability Zone (AZ)?
+Each Availability Zone is an isolated data center (or multiple data centers) with:
+Independent power and cooling.
+High-speed private fiber connections between AZs (low latency).
+Physical separation (usually 10–50 km apart) within the same region.
+
+
+# What are AWS Edge Locations?
+-> Edge Locations are AWS data centers located closer to end-users than the main regions.
+-> Edge location are CDN endpoint of cloud front to deliver the content to end user with low latency.
+
+
+📍 In India, AWS has multiple edge locations, for example:
+Mumbai
+Chennai
+Hyderabad
+New Delhi
+Bengaluru
+Kolkata
+
+-> When someone in India accesses your app, CloudFront automatically serves the content from the nearest edge location — instead of always reaching your main AWS region (e.g., ap-south-1 in Mumbai).
+
+# Why we go for cloud computing
+-> Lower computing cost
+-> Improved performance
+-> No IT maintenance
+-> Bussiness connectivity
+-> Easily upgraded
+-> Device Independent
+
+
+# What are the advantages of cloud computing
+-> Pay per use
+-> Scalability
+-> Elasticity
+-> High availablity
+-> Increase speed and Agility
+-> Go global in Minutes
+
 
 # What is AWS
 -> AWS stands for Amazon web service. It's a secure cloud platform. 
 -> It provide the on-demanding resources for hosting web services, storage, networking, database and other resources over the internet with pay as you go pricing.
-
-# What is meant by region, availablity zone, edge location
--> Region: Regions in cloud computing refer to geographic locations where cloud providers have data centers. Each region contains multiple data centers.
--> Availablity zone: Availability Zones are isolated locations within a region that have their own power, cooling, and networking. They are designed to provide high availability and fault tolerance
--> Edeg location: Edge location is a important part of AWS infrastructure. Edge location are CDN endpoint of cloud front to deliver the content to end user with low latency.
 
 # How to access AWS platform
 -> AWS console
@@ -685,32 +740,11 @@ NS Record (Name Server Record): Specifies the DNS servers responsible for managi
 Note: We will check 11 and 12 linkdin AWS pages before interview
 
 
-# What is cloud computing
--> Cloud computing means it provides services to access the application, programms, storage, network over the internet through browser.
-
-# Why we go for cloud computing
--> Lower computing cost
--> Improved performance
--> No IT maintenance
--> Bussiness connectivity
--> Easily upgraded
--> Device Independent
-
 # What are the deployment models using in Cloud
 -> Private cloud
 -> Public Cloud 
 -> Hybrid cloud
 -> Community cloud 4
-
-
-# What are the advantages of cloud computing
--> Pay per use
--> Scalability
--> Elasticity
--> High availablity
--> Increase speed and Agility
--> Go global in Minutes
-
 
 
 # What is Elastic Beanstalk
