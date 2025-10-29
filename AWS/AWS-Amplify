@@ -141,28 +141,9 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm install
-    build:
-      commands:
-        - npm run build
-  artifacts:
-    baseDirectory: dist
-    files:
-      - '**/*'
-  cache:
-    paths:
-      - node_modules/**/*
-
-
-# Delete cache before build 
-
-version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - echo "Clearing node_modules cache..."
+        - echo "Clearing Amplify cache and node_modules..."
         - rm -rf node_modules
+        - rm -rf /root/.cache # Clear global cache (Amplify build cache)
         - echo "Installing dependencies..."
         - npm install
     build:
@@ -174,8 +155,8 @@ frontend:
     files:
       - "**/*"
   cache:
-    paths:
-      - node_modules/**/*
+    paths: [] # Disable caching completely
+
 
 
 
@@ -231,17 +212,25 @@ frontend:
   phases:
     preBuild:
       commands:
+        - echo "Clearing previous caches..."
+        - rm -rf node_modules
+        - rm -rf /root/.npm
+        - rm -rf /root/.cache
         - echo "No build needed"
+
     build:
       commands:
         - echo "Skipping build step"
+
   artifacts:
     baseDirectory: .
     files:
-      - '**/*'
+      - "**/*"
+
   cache:
-    paths:
-      - node_modules/**/*
+    # Disable caching completely for clean builds
+    paths: []
+
 
 
 # Static page
@@ -251,17 +240,28 @@ frontend:
   phases:
     preBuild:
       commands:
-        - npm ci --cache .npm --prefer-offline
+        - echo "Clearing previous npm and Amplify caches..."
+        - rm -rf .npm
+        - rm -rf node_modules
+        - rm -rf /root/.npm
+        - rm -rf /root/.cache
+
+        - echo "Installing dependencies..."
+        - npm ci --legacy-peer-deps
+
     build:
       commands:
+        - echo "Running build..."
         - npm run build
+
   artifacts:
     baseDirectory: build
     files:
       - '**/*'
+
   cache:
-    paths:
-      - .npm/**/*
+    # Disable caching completely so Amplify doesn’t reuse old cache
+    paths: []
 
 
 
@@ -276,42 +276,27 @@ frontend:
         - nvm install 18
         - nvm use 18
 
+        # Clear any existing caches or previous dependencies
+        - echo "Clearing Amplify and npm caches..."
+        - rm -rf node_modules
+        - rm -rf /root/.npm
+        - rm -rf /root/.cache
+
         # Install dependencies (ignore lock file mismatch)
         - echo "Installing dependencies..."
         - npm install --legacy-peer-deps
+
     build:
       commands:
         - echo "Running Vite build..."
         - npm run build
+
   artifacts:
     # Vite always outputs to dist
     baseDirectory: dist
     files:
       - "**/*"
+
   cache:
-    paths:
-      - node_modules/**/*
-
-
-
-# production admin-ui
-
-version: 1
-frontend:
-  phases:
-    preBuild:
-      commands:
-        - echo "Installing dependencies..."
-        - npm ci   # faster & reproducible installs
-    build:
-      commands:
-        - echo "Running build..."
-        - npm run build
-  artifacts:
-    baseDirectory: dist
-    files:
-      - "**/*"
-  cache:
-    paths:
-      - ~/.npm   # cache npm downloads, NOT node_modules
-      # - ~/.yarn # (if you switch to yarn)
+    # Disable caching completely (forces a clean build every time)
+    paths: []
