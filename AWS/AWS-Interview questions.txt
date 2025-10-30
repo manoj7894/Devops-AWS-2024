@@ -112,8 +112,16 @@ Kolkata
 -> saving Paln  (it will give 72% discount)
 
 # What are the types of volumes for ec2 instance
--> Instance store volume
--> EBS 
+-> There are two main types of storage volumes you can attach to an EC2 instance:
+  1) EBS Volumes
+  2) Instance Store
+
+| **Storage Type**                           | **Service Name**                  | **Persistence**      | **Description**     | ------------------------------------------ | --------------------------------- | -------------------- | --------------------| 1️⃣ **EBS (Elastic Block Store)**          | Block storage                     | ✅ **Persistent**     | Data remains even after the instance stops or terminates (unless you choose to delete on termination). 
+
+| 2️⃣ **Instance Store (Ephemeral Storage)** | Block storage (local to the host) | ❌ **Non-persistent** | Data is stored on disks physically attached to the EC2 host. Lost when instance stops, hibernates, or terminates. |
+
+
+
 
 # When i try to launch an ec2 instance i am getting service limit exceed how to fix the issue
 -> By default AWS offer service limit of 20 running instances per region, to fix the issue we need to contact AWS support to increase the limit based on requirment
@@ -206,6 +214,190 @@ This setup scales your network security layer automatically without reconfigurin
 
 
 
+# What are the storage class in AWS
+1) Block level storage  -> EBS Service
+2) File level storage   -> EFS Service
+3) object level storage -> S3 service 
+4) Server type storage  -> RDS Service
+
+
+# What is Block Level Storage
+-> Block-level storage operates at the low-level (raw storage device level) and manages data as a set of numbered, fixed-size blocks.
+
+Each block acts as an individual storage unit with its own address, and the operating system controls how these blocks are organized and used (for example, by formatting them with a file system like NTFS or ext4).
+
+⚙️ Example in AWS
+When you attach an EBS volume to an EC2 instance, it provides block-level storage.
+Your EC2 instance’s operating system formats it with a file system and treats it just like a physical hard disk.
+
+In AWS, block-level storage is mainly provided by EBS (Elastic Block Store).
+
+# What is EBS
+-> EBS (Elastic Block Store) is a block-level storage service used to store data persistently for EC2 instances.
+-> It acts like a virtual hard disk that you can attach or detach from an EC2 instance at any time.
+
+🔹 Key Points
+EBS Attachment Limit:
+You can attach up to 16 EBS volumes to a single EC2 instance (for most instance types; newer ones may support even more).
+
+EBS Volume Size:
+Each EBS volume can range from 1 GiB up to 64 TiB in size, depending on the volume type.
+
+EBS Multi-Attach:
+The EBS Multi-Attach feature allows a single EBS volume to be attached to multiple EC2 instances at the same time.
+This is supported only on io1 or io2 volume types and must be in the same Availability Zone (AZ).
+Useful for clustered or shared-data applications (e.g., high availability setups).
+
+Hypervisor Support:
+Xen Hypervisor: Older virtualization platform used by legacy EC2 instances. It does not support EBS Multi-Attach.
+Nitro Hypervisor: Modern, high-performance hypervisor used by most current instance types. It supports EBS Multi-Attach, enhanced networking, and better performance.
+
+💾 Types of Elastic Block Storage (EBS)
+1️⃣ SSD (Solid State Drive)
+Provides faster performance compared to HDD.
+Works based on IOPS (Input/Output Operations Per Second).
+Ideal for transactional workloads such as databases and boot volumes.
+
+2️⃣ HDD (Hard Disk Drive)
+Offers slower performance compared to SSD.
+Works based on Throughput (data transfer rate).
+Suitable for sequential workloads like big data, log processing, and backups.
+
+3 Snapshot-based
+
+⚙️ SSD Types (IOPS-Based Performance)
+1) General Purpose SSD
+Volume types: gp2 and gp3
+Use case: Balances price and performance for most workloads.
+IOPS range: Minimum 100 to Maximum 16,000 IOPS
+Volume size: 1 GiB to 16 TiB
+
+🔸 gp2
+Default volume type when you create an EC2 instance.
+Baseline: 3 IOPS per GiB of volume size.
+Example: 8 GiB × 3 = 24 IOPS, but AWS provides minimum 100 IOPS to ensure smooth performance.
+
+To increase IOPS, you must increase the volume size (e.g., 100 GiB → 300 IOPS).
+
+🔸 gp3
+Newer generation general purpose SSD.
+Baseline 3,000 IOPS (independent of volume size).
+You can provision up to 16,000 IOPS and 1,000 MB/s throughput separately from storage capacity.
+
+2) Provisioned IOPS SSD
+Volume types: io1, io2, and io2 Block Express
+Designed for I/O-intensive workloads such as databases (Oracle, SQL Server, etc.)
+Volume size: 4 GiB to 16 TiB
+
+🔸 io1
+Supports 100 to 64,000 IOPS
+Supports Nitro-based instances only
+
+🔸 io2
+Supports 100 to 64,000 IOPS
+Provides higher durability (99.999%) than io1
+
+Also works only with Nitro-based instances
+
+🔸 io2 Block Express
+Supports more than 64,000 IOPS (up to 256,000 IOPS)
+Designed for R5b instances and high-end workloads like large SAP or Oracle DBs.
+
+⚙️ HDD Types (Throughput-Based Performance)
+1) st1 (Throughput Optimized HDD)
+Volume size: 125 GiB to 16 TiB
+Throughput: Up to 500 MB/s
+Best for big data, data warehouses, log processing, and streaming workloads.
+
+2) sc1 (Cold HDD)
+Volume size: 125 GiB to 16 TiB
+Throughput: Up to 250 MB/s
+Best for infrequently accessed data with lowest cost.
+
+⚡ What is Throughput?
+Throughput is the amount of data transferred successfully from one place to another within a specific time period.
+It is usually measured in bits per second (bps) — such as Megabits per second (Mbps) or Gigabits per second (Gbps).
+
+🧠 Additional Notes
+HDD volumes (st1, sc1) cannot be used as boot volumes — only SSD (gp2, gp3, io1, io2) volumes can.
+Use HDD when your workload involves less frequent I/O operations but large amounts of data.
+Use SSD when your workload requires fast and consistent I/O performance.
+
+
+🔹 What is an EBS Snapshot?
+An EBS Snapshot is a point-in-time backup of your EBS volume, stored in Amazon S3 (managed internally by AWS).
+It captures the exact state of your volume data at the time the snapshot is taken.
+
+🔹 Use Cases
+Regular backups of production EBS volumes.
+Disaster recovery (restore volumes in another region).
+Template creation for launching pre-configured EC2 instances.
+Migration between environments or AWS accounts.
+
+🔹 Storage Type
+Although snapshots are stored in Amazon S3, they are not directly accessible like normal S3 objects.
+AWS manages this storage internally — you cannot browse them in S3 buckets.
+When you create a volume from a snapshot, AWS lazily loads data blocks (on-demand restore) for faster provisioning.
+
+
+
+# Is it possible to reduce a EBS volume (Just read to get ne idea)
+Yes, it is possible to reduce the size of an EBS volume in AWS, but with some limitations and considerations.
+
+Here’s a breakdown of how it works:
+
+1. For General Purpose SSD (gp3) and other EBS types:
+Directly reducing the size of an EBS volume is not supported directly in AWS.
+However, you can shrink the file system and then create a snapshot and restore the snapshot to a new, smaller volume.
+Steps to reduce the size of an EBS volume:
+Backup: Take a snapshot of the existing volume to prevent data loss.
+Shrink the file system:
+Log into your EC2 instance and reduce the file system size to fit within the desired new volume size.
+For example, if you're using ext4 or xfs, you can resize the file system using commands like resize2fs for ext4.
+Create a new volume: After shrinking the file system, create a new EBS volume with the desired smaller size.
+Copy data: Mount the new volume and copy the data from the old (larger) volume to the new (smaller) one.
+Detach the old volume: Once you’ve confirmed everything is working properly on the new volume, you can detach the old volume.
+2. Elastic Block Store Snapshots:
+AWS allows you to take snapshots of volumes. When reducing the size of a volume, this snapshot is typically useful as a backup or to restore data if necessary.
+Limitations and Considerations:
+Data loss risk: If the volume is not properly resized before transferring data, you risk losing data that exceeds the new smaller volume's capacity.
+Downtime: There may be some downtime during the resizing process since you will need to detach the old volume and attach the new one.
+Volume type: This process is applicable to most volume types, but the exact steps may vary depending on the file system used and the operating system of your EC2 instance.
+Alternative - Elastic File System (EFS):
+If your use case involves frequent resizing and dynamic scaling, consider using Amazon EFS, which automatically scales up and down, eliminating the need to manually adjust volume sizes. However, EFS is not suitable for all workloads, especially those requiring block-level storage.
+
+In summary, while direct reduction of EBS volume size isn’t supported, the process of resizing can be achieved with a workaround involving shrinking the file system, creating a new volume, and transferring the data.
+
+
+
+# I need modify the ebs volume in linux and windows is it possible
+-> yes its possible from console use modify the volumes in section give size u need
+-> In windows go to disk management for linux mount it to achive the modification
+
+#  You have an Ec2 instance that has an unencrypted volume. You want to create another encrypted volume from this unencrypted volume. Which of the following steps can achive this
+-> Create one snapchat of unencrypted volume and copy the snapchat and create volume from that copied snapchat
+
+# What is Amazon EBS-Optimized instance
+-> This optimization provides dedicated throughput between Amazon EC2 and Amazon EBS, which ensures that EBS performance is predictable and consistent.
+-> When you select the amazon EBS-Optimized for instance you will pay additonal hourly charge money for instance.
+
+
+
+# What is File Level Storage:-
+-> File Storage operates at higher level, the operating system level and manage the data as a name hierachy of files and folder
+
+In AWS, File-level storage is mainly provided by EFS (Elastic Block Store).
+
+
+# What is EFS
+-> EFS is a elastic file system it is scalable and fully managed file storage service in provided by AWS.
+-> EFS is provides a simple and elastic file system that can be mounted a mulitple Ec2 instances.
+	Scalability: It is automatically scales your file system
+	Performance: Efs provides the low-latency and high throughput file storage.
+		     EFS is unlimited of Size
+		     EFS is Costly
+
+
 # What is S3
 -> S3 stands for Simple storage service. we can use to store the data at anytime in anywhere in the world.
 -> S3 store user related data store
@@ -272,91 +464,16 @@ This setup scales your network security layer automatically without reconfigurin
 -> Access key/session Token
 
 
+Block Storage (EBS): Data stored as fixed-size blocks → best for databases and operating systems.
+File Storage (EFS): Data stored and managed as files and folders → best for shared access between servers.
+Object Storage (S3): Data stored as objects with metadata → best for scalable storage, backups, and static content.
 
 
-# What is EBS volume
--> EBS stands for Elastic Block storage in AWS. It allow you to create and persistence storage volume to your instance
--> With EBS Volumes your data will be preserved even when you stop your instance.
-   		EBS is Highly Availablity
-		Limited of Size
-		One Ec2 attached by one EBS
-		Minimum Costly
-		High Durability
-
-# What are the types of volumes in EBS
--> we have two tyeps of volumes in EBS
-   -> SSD [Solid State Disk] it will work based on Iops
-   -> HDD [Hard Disk Drive]  it will work based on throughput
--> In SSD we have two types  [it will work on volumes]
-  -> General purpose SSD -> General purpose SSD volume offer cost effective storage that is idel for broad range of workloads.
-          EBS Volume Size: 1 GB to 16 TB Maximun IOPS: upto 10,000 IOPS Maximum throughput: 160 MB
-  -> Provisioned IOPS SSD -> Provisioned IOPS SSD provides predictable and high performance
-          EBS Volume Size: 4 GB to 16 TB Maximun IOPS: upto 20,000 IOPS Maximum throughput: 320 MB
--> HDD we have two types    [it will work on speed meand MBs]
-   -> Cold HDD -> Cold HDD volumes are designed for less frequently accessed workloads.
-         EBS Volume Size: 500 GB to 16 TB Maximun IOPS: upto 200 IOPS Maximum throughput: 250 MB
-   -> Throughput-Optimized HDD: Throughput-Optimized HDD volumes are low cost HDD volumes designed for frequent access.    
-         EBS Volume Size: 500 GB to 16 TB Maximun IOPS: upto 500 IOPS Maximum throughput: 500 MB
-
-# Is it possible to reduce a EBS volume (Just read to get ne idea)
-Yes, it is possible to reduce the size of an EBS volume in AWS, but with some limitations and considerations.
-
-Here’s a breakdown of how it works:
-
-1. For General Purpose SSD (gp3) and other EBS types:
-Directly reducing the size of an EBS volume is not supported directly in AWS.
-However, you can shrink the file system and then create a snapshot and restore the snapshot to a new, smaller volume.
-Steps to reduce the size of an EBS volume:
-Backup: Take a snapshot of the existing volume to prevent data loss.
-Shrink the file system:
-Log into your EC2 instance and reduce the file system size to fit within the desired new volume size.
-For example, if you're using ext4 or xfs, you can resize the file system using commands like resize2fs for ext4.
-Create a new volume: After shrinking the file system, create a new EBS volume with the desired smaller size.
-Copy data: Mount the new volume and copy the data from the old (larger) volume to the new (smaller) one.
-Detach the old volume: Once you’ve confirmed everything is working properly on the new volume, you can detach the old volume.
-2. Elastic Block Store Snapshots:
-AWS allows you to take snapshots of volumes. When reducing the size of a volume, this snapshot is typically useful as a backup or to restore data if necessary.
-Limitations and Considerations:
-Data loss risk: If the volume is not properly resized before transferring data, you risk losing data that exceeds the new smaller volume's capacity.
-Downtime: There may be some downtime during the resizing process since you will need to detach the old volume and attach the new one.
-Volume type: This process is applicable to most volume types, but the exact steps may vary depending on the file system used and the operating system of your EC2 instance.
-Alternative - Elastic File System (EFS):
-If your use case involves frequent resizing and dynamic scaling, consider using Amazon EFS, which automatically scales up and down, eliminating the need to manually adjust volume sizes. However, EFS is not suitable for all workloads, especially those requiring block-level storage.
-
-In summary, while direct reduction of EBS volume size isn’t supported, the process of resizing can be achieved with a workaround involving shrinking the file system, creating a new volume, and transferring the data.
-
-
-
-# I need modify the ebs volume in linux and windows is it possible
--> yes its possible from console use modify the volumes in section give size u need
--> In windows go to disk management for linux mount it to achive the modification
-
-#  You have an Ec2 instance that has an unencrypted volume. You want to create another encrypted volume from this unencrypted volume. Which of the following steps can achive this
--> Create one snapchat of unencrypted volume and copy the snapchat and create volume from that copied snapchat
-
-# What is Amazon EBS-Optimized instance
--> This optimization provides dedicated throughput between Amazon EC2 and Amazon EBS, which ensures that EBS performance is predictable and consistent.
--> When you select the amazon EBS-Optimized for instance you will pay additonal hourly charge money for instance.
-
-# What is EBS Snapshot
--> It can take backup on EBS volume. Snaphots are incremental backups
--> If this is your first snapshot it will take some time to create. snapshot are point in time of copies of volume.
-
-
-# What is EFS
--> EFS is a elastic file system it is scalable and fully managed file storage service in provided by AWS.
--> EFS is provides a simple and elastic file system that can be mounted a mulitple Ec2 instances.
-	Scalability: It is automatically scales your file system
-	Performance: Efs provides the low-latency and high throughput file storage.
-		     EFS is unlimited of Size
-		     EFS is Costly
-
-
-# What is the difference between Bloack storage and File storage
-# Block Storage:- 
--> Block storage operates at lower level, raw storage device level and manage the data as a set of numbered and fixed size block
+# What is the difference between Bloack level storage and File level storage
+# Block level Storage:- 
+-> Block-level storage operates at the low-level (raw storage device level) and manages data as a set of numbered, fixed-size blocks
 # File Storage:-
--> File Storage operates at higher level, the operating system level and manage the data as a name hierachy of files and folder
+-> File level Storage operates at higher level and manage the data as a name hierachy of files and folder
 
 # Example:-
 The key difference between block storage and file storage lies in how data is stored, accessed, and managed. Here's a breakdown of their characteristics and differences:
