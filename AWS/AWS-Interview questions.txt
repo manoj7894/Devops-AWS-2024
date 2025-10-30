@@ -122,6 +122,8 @@ Kolkata
 -> To verify that there is rule to allow the traffic from ec2 instance to your computer
 
 
+# What is Elastic load balancer
+-> Elastic load Balancer automatically divert the incoming traffic into multiple targets like Ec2, containers, Ip address.
 
 # What are the types of load balancer in AWS
 -> Classic load balancer
@@ -129,30 +131,63 @@ Kolkata
 -> Network load balancer [it used for transport layer, it work under TCP and UDP]
 -> Gateway load balancer [it is used for security purpose]
 
-# What is Elastic load balancer
--> Elastic load Balancer automatically divert the incoming traffic into multiple targets like Ec2, containers, Ip address.
+
 
 # What is the difference between classic load balancer and application balancer
--> One port listener is achieved via classic load balancer
--> Dynamic port mapping, multiple port, multiple listener is used in application load balancer.
+⚙️ Classic Load Balancer (CLB)
+Older generation load balancer (before ALB and NLB).
+Works at Layer 4 (Transport) and Layer 7 (Application).
+Supports one listener per load balancer, meaning it listens on one port (e.g., port 80 or 443) and forwards requests to backend instances on a fixed port.
+You can’t do advanced routing like based on URL path or hostname.
+
+✅ Example:
+You have 3 EC2 instances running a web app on port 80.
+CLB listens on port 80 → sends traffic evenly to all 3 EC2 instances.
+
+⚙️ Application Load Balancer (ALB)
+Modern load balancer (recommended for web apps and microservices).
+Works at Layer 7 (Application Layer).
+Supports multiple listeners and ports (for example, HTTP on port 80 and HTTPS on port 443).
+Supports dynamic port mapping — especially useful for ECS or container-based apps, where each container might run on a different port.
+Can route traffic intelligently using path-based or host-based rules.
+
+✅ Example:
+Your ECS service runs multiple containers:
+Container 1 → port 32768
+Container 2 → port 32769
+The ALB automatically maps incoming requests to whichever port your containers are using (this is dynamic port mapping).
 
 
-Difference between load balancer 
-Application load balancer 
-ALb is a 7 osi model.
-ALb is traffic handling for HTTP and HTTPS . 
-It is equally disturbing request.
- 
-1 Network lb is a 4 osi model.
-2 It is a check ip and request distribute.
-3 NLB It's not an equally disturbed request 
-4  It is a transport layer TCP and UDP.it can handle millions of requests per sec .
 
-Classic LB 
-1 Clb 4 osi model 
-2 Clb is used to load balancer one port Listeners and clb archive 
-3 it's route traffic between client backend server based IP addresses . 
-It' is mostly used http https SSL TCP this protocol used handle.
+-> Classic Load Balancer (CLB) supports a single listener per port and does not support dynamic port mapping.
+-> Application Load Balancer (ALB) supports multiple listeners and ports, and allows dynamic port mapping for containers or services that use different ports — ideal for ECS or microservice architectures.
+
+
+
+⚙️ Network Load Balancer (NLB)
+Designed for high-performance, low-latency applications.
+Works at Layer 4 (Transport Layer) — handles TCP, UDP, and TLS traffic.
+Can process millions of requests per second while maintaining ultra-low latency.
+Supports static IP addresses and even Elastic IPs (EIPs) for predictable networking.
+Best suited for use cases where performance, static IP, or handling non-HTTP(S) traffic matters.
+
+✅ Example:
+You’re running a high-performance financial trading app or game server that uses TCP on port 443.
+NLB listens on port 443 → forwards requests directly to backend EC2 instances or containers (without modifying packets).
+It maintains client IP visibility, so the backend knows the original source IP.
+
+⚙️ Gateway Load Balancer (GLB)
+Specialized load balancer for network appliances like firewalls, intrusion detection systems (IDS), or deep packet inspection (DPI).
+Works at Layer 3 (Network Layer) and Layer 4 (Transport Layer).
+Combines a transparent network gateway with a load balancer — meaning traffic passes through it without needing app-level changes.
+It distributes traffic across multiple virtual appliances while preserving the source and destination IPs.
+
+✅ Example:
+You have 3 virtual firewall appliances running in EC2.
+GLB receives traffic → automatically distributes it across the 3 firewalls → sends filtered/inspected traffic to your backend app servers.
+This setup scales your network security layer automatically without reconfiguring routing
+
+
 
 # You are enabled sticky session with ELB. what does it do with your instance
 -> Binds the user session with specific instance
