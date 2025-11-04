@@ -28,6 +28,8 @@ Physical separation (usually 10–50 km apart) within the same region.
 
 # What are AWS Edge Locations?
 -> Edge Locations are AWS data centers located closer to end-users than the main regions.
+-> Edge location are CDN endpoint of cloud front to deliver the content to end user with low latency.
+
 
 📍 In India, AWS has multiple edge locations, for example:
 Mumbai
@@ -38,3 +40,730 @@ Bengaluru
 Kolkata
 
 -> When someone in India accesses your app, CloudFront automatically serves the content from the nearest edge location — instead of always reaching your main AWS region (e.g., ap-south-1 in Mumbai).
+
+# Why we go for cloud computing
+-> Lower computing cost
+-> Improved performance
+-> No IT maintenance
+-> Bussiness connectivity
+-> Easily upgraded
+-> Device Independent
+
+
+# What are the advantages of cloud computing
+-> Pay per use
+-> Scalability
+-> Elasticity
+-> High availablity
+-> Increase speed and Agility
+-> Go global in Minutes
+
+
+# What is AWS
+-> AWS stands for Amazon web service. It's a secure cloud platform. 
+-> It provide the on-demanding resources for hosting web services, storage, networking, database and other resources over the internet with pay as you go pricing.
+
+# How to access AWS platform
+-> AWS console
+-> AWS CLI (Command line interface)
+-> AWS SDK (Software development kit)
+
+# What are the components in AWS
+-> Ec2 -> Elastic computer cloud
+-> S3 -> Simple storage service
+-> EBS -> Elastic block storage
+-> Route53
+-> Cloudwatch and keypair are the few components of AWS
+
+# What is Ec2 instance
+-> Ec2 stands for Elastic computer cloud in aws.
+-> It is virtual server in AWS.
+-> It provide the computing resources for running the application. 
+
+# What is benefits of Ec2
+-> Easier and faster
+-> Elastic and scalable 
+-> High Availablity
+-> Cost effective
+
+# What are the types using in AWS Ec2
+-> General purpose
+-> Compute Optimized
+-> Memory Optimized
+-> Storage Optimized
+-> Accelerated Computing (GPU Based)
+
+# What are the reserved instance
+-> Reservers instance are the instance that you can reserve the fixed of ec2 instance. In reserved instance you will have to get the contract of 1 years or 3 years  (It will give 70% to 75% discount) 
+
+# When your instance show retired state
+-> Retired state only available in reserved instance. Once reserved instance reserving time (1yr/3yr)ends it shows retied state
+
+
+# What is keypair
+-> Keypair is the secure login information for your instance. To connect the instance we use keypair that contain public-key and private-key.
+
+# What are the pricing model for Ec2 instance
+-> On-Demand - whenever we can we can use   
+-> Reserved  - you will have to get the contract of 1 years or 3 years
+-> Spot - if u want instance fr 1 hour u cn take nd use if load increase it will terminate
+-> Scheduled - It will schedule the instances
+-> Dedicated - here cpu storage all dedicated to one instance only
+-> saving Paln  (it will give 72% discount)
+
+# What are the types of volumes for ec2 instance
+-> There are two main types of storage volumes you can attach to an EC2 instance:
+  1) EBS Volumes
+  2) Instance Store
+
+
+| **Storage Type**                           | **Service Name**                  | **Persistence**      | **Description**     | ------------------------------------------ | --------------------------------- | -------------------- | --------------------| 1️⃣ **EBS (Elastic Block Store)**          | Block storage                     | ✅ **Persistent**     | Data remains even after the instance stops or terminates (unless you choose to delete on termination). 
+
+| 2️⃣ **Instance Store (Ephemeral Storage)** | Block storage (local to the host) | ❌ **Non-persistent** | Data is stored on disks physically attached to the EC2 host. Lost when instance stops, hibernates, or terminates. |
+
+
+
+
+# When i try to launch an ec2 instance i am getting service limit exceed how to fix the issue
+-> By default AWS offer service limit of 20 running instances per region, to fix the issue we need to contact AWS support to increase the limit based on requirment
+
+# You have launched linux instance in AWS ec2. While configuration security group, you have selected SSH, HTTP, HTTPS protocol. Why do we need to select SSH
+-> To verify that there is rule to allow the traffic from ec2 instance to your computer
+
+
+# What is Elastic load balancer
+-> Elastic load Balancer automatically divert the incoming traffic into multiple targets like Ec2, containers, Ip address.
+
+# What are the types of load balancer in AWS
+-> Classic load balancer
+-> Application load balancer
+-> Network load balancer [it used for transport layer, it work under TCP and UDP]
+-> Gateway load balancer [it is used for security purpose]
+
+
+
+# What is the difference between classic load balancer and application balancer
+⚙️ Classic Load Balancer (CLB)
+Older generation load balancer (before ALB and NLB).
+Works at Layer 4 (Transport) and Layer 7 (Application).
+Supports one listener per load balancer, meaning it listens on one port (e.g., port 80 or 443) and forwards requests to backend instances on a fixed port.
+You can’t do advanced routing like based on URL path or hostname.
+
+✅ Example:
+You have 3 EC2 instances running a web app on port 80.
+CLB listens on port 80 → sends traffic evenly to all 3 EC2 instances.
+
+⚙️ Application Load Balancer (ALB)
+Modern load balancer (recommended for web apps and microservices).
+Works at Layer 7 (Application Layer).
+Supports multiple listeners and ports (for example, HTTP on port 80 and HTTPS on port 443).
+Supports dynamic port mapping — especially useful for ECS or container-based apps, where each container might run on a different port.
+Can route traffic intelligently using path-based or host-based rules.
+
+✅ Example:
+Your ECS service runs multiple containers:
+Container 1 → port 32768
+Container 2 → port 32769
+The ALB automatically maps incoming requests to whichever port your containers are using (this is dynamic port mapping).
+
+
+
+-> Classic Load Balancer (CLB) supports a single listener per port and does not support dynamic port mapping.
+-> Application Load Balancer (ALB) supports multiple listeners and ports, and allows dynamic port mapping for containers or services that use different ports — ideal for ECS or microservice architectures.
+
+
+
+⚙️ Network Load Balancer (NLB)
+Designed for high-performance, low-latency applications.
+Works at Layer 4 (Transport Layer) — handles TCP, UDP, and TLS traffic.
+Can process millions of requests per second while maintaining ultra-low latency.
+Supports static IP addresses and even Elastic IPs (EIPs) for predictable networking.
+Best suited for use cases where performance, static IP, or handling non-HTTP(S) traffic matters.
+
+✅ Example:
+You’re running a high-performance financial trading app or game server that uses TCP on port 443.
+NLB listens on port 443 → forwards requests directly to backend EC2 instances or containers (without modifying packets).
+It maintains client IP visibility, so the backend knows the original source IP.
+
+⚙️ Gateway Load Balancer (GLB)
+Specialized load balancer for network appliances like firewalls, intrusion detection systems (IDS), or deep packet inspection (DPI).
+Works at Layer 3 (Network Layer) and Layer 4 (Transport Layer).
+Combines a transparent network gateway with a load balancer — meaning traffic passes through it without needing app-level changes.
+It distributes traffic across multiple virtual appliances while preserving the source and destination IPs.
+
+✅ Example:
+You have 3 virtual firewall appliances running in EC2.
+GLB receives traffic → automatically distributes it across the 3 firewalls → sends filtered/inspected traffic to your backend app servers.
+This setup scales your network security layer automatically without reconfiguring routing
+
+
+
+# You are enabled sticky session with ELB. what does it do with your instance
+-> Binds the user session with specific instance
+
+# After configuring ELB, you need to ensure that the user requests are always attached to a single instance. What settings can you use
+-> Sticky session
+
+# What type of load balancer makes routing decisions at either the transport layer or the application layer and supports either Ec2 or VPC
+-> classic load balancer
+
+# Let to suppose you have an application where do you have to render image and also do some general computing, which service will be best fit your need
+-> Application load balancer
+
+# Load Balancer and DNS service comes under which type of cloud service
+-> IAAS-Storage.
+
+# What are the storage class in AWS
+1) Block level storage  -> EBS Service
+2) File level storage   -> EFS Service
+3) object level storage -> S3 service 
+4) Server type storage  -> RDS Service
+
+
+# What is Block Level Storage
+-> Block-level storage operates at the low-level (raw storage device level) and manages data as a set of numbered, fixed-size blocks.
+
+Each block acts as an individual storage unit with its own address, and the operating system controls how these blocks are organized and used (for example, by formatting them with a file system like NTFS or ext4).
+
+⚙️ Example in AWS
+When you attach an EBS volume to an EC2 instance, it provides block-level storage.
+Your EC2 instance’s operating system formats it with a file system and treats it just like a physical hard disk.
+
+In AWS, block-level storage is mainly provided by EBS (Elastic Block Store).
+
+# What is EBS
+-> EBS (Elastic Block Store) is a block-level storage service used to store data persistently for EC2 instances.
+-> It acts like a virtual hard disk that you can attach or detach from an EC2 instance at any time.
+
+🔹 Key Points
+EBS Attachment Limit:
+You can attach up to 16 EBS volumes to a single EC2 instance (for most instance types; newer ones may support even more).
+
+EBS Volume Size:
+Each EBS volume can range from 1 GiB up to 64 TiB in size, depending on the volume type.
+
+EBS Multi-Attach:
+The EBS Multi-Attach feature allows a single EBS volume to be attached to multiple EC2 instances at the same time.
+This is supported only on io1 or io2 volume types and must be in the same Availability Zone (AZ).
+Useful for clustered or shared-data applications (e.g., high availability setups).
+
+Hypervisor Support:
+Xen Hypervisor: Older virtualization platform used by legacy EC2 instances. It does not support EBS Multi-Attach.
+Nitro Hypervisor: Modern, high-performance hypervisor used by most current instance types. It supports EBS Multi-Attach, enhanced networking, and better performance.
+
+💾 Types of Elastic Block Storage (EBS)
+1️⃣ SSD (Solid State Drive)
+Provides faster performance compared to HDD.
+Works based on IOPS (Input/Output Operations Per Second).
+Ideal for transactional workloads such as databases and boot volumes.
+
+2️⃣ HDD (Hard Disk Drive)
+Offers slower performance compared to SSD.
+Works based on Throughput (data transfer rate).
+Suitable for sequential workloads like big data, log processing, and backups.
+
+3 Snapshot-based
+
+⚙️ SSD Types (IOPS-Based Performance)
+1) General Purpose SSD
+Volume types: gp2 and gp3
+Use case: Balances price and performance for most workloads.
+IOPS range: Minimum 100 to Maximum 16,000 IOPS
+Volume size: 1 GiB to 16 TiB
+
+🔸 gp2
+Default volume type when you create an EC2 instance.
+Baseline: 3 IOPS per GiB of volume size.
+Example: 8 GiB × 3 = 24 IOPS, but AWS provides minimum 100 IOPS to ensure smooth performance.
+
+To increase IOPS, you must increase the volume size (e.g., 100 GiB → 300 IOPS).
+
+🔸 gp3
+Newer generation general purpose SSD.
+Baseline 3,000 IOPS (independent of volume size).
+You can provision up to 16,000 IOPS and 1,000 MB/s throughput separately from storage capacity.
+
+2) Provisioned IOPS SSD
+Volume types: io1, io2, and io2 Block Express
+Designed for I/O-intensive workloads such as databases (Oracle, SQL Server, etc.)
+Volume size: 4 GiB to 16 TiB
+
+🔸 io1
+Supports 100 to 64,000 IOPS
+Supports Nitro-based instances only
+
+🔸 io2
+Supports 100 to 64,000 IOPS
+Provides higher durability (99.999%) than io1
+
+Also works only with Nitro-based instances
+
+🔸 io2 Block Express
+Supports more than 64,000 IOPS (up to 256,000 IOPS)
+Designed for R5b instances and high-end workloads like large SAP or Oracle DBs.
+
+⚙️ HDD Types (Throughput-Based Performance)
+1) st1 (Throughput Optimized HDD)
+Volume size: 125 GiB to 16 TiB
+Throughput: Up to 500 MB/s
+Best for big data, data warehouses, log processing, and streaming workloads.
+
+2) sc1 (Cold HDD)
+Volume size: 125 GiB to 16 TiB
+Throughput: Up to 250 MB/s
+Best for infrequently accessed data with lowest cost.
+
+⚡ What is Throughput?
+Throughput is the amount of data transferred successfully from one place to another within a specific time period.
+It is usually measured in bits per second (bps) — such as Megabits per second (Mbps) or Gigabits per second (Gbps).
+
+🧠 Additional Notes
+HDD volumes (st1, sc1) cannot be used as boot volumes — only SSD (gp2, gp3, io1, io2) volumes can.
+Use HDD when your workload involves less frequent I/O operations but large amounts of data.
+Use SSD when your workload requires fast and consistent I/O performance.
+
+
+🔹 What is an EBS Snapshot?
+An EBS Snapshot is a point-in-time backup of your EBS volume, stored in Amazon S3 (managed internally by AWS).
+It captures the exact state of your volume data at the time the snapshot is taken.
+
+🔹 Use Cases
+Regular backups of production EBS volumes.
+Disaster recovery (restore volumes in another region).
+Template creation for launching pre-configured EC2 instances.
+Migration between environments or AWS accounts.
+
+🔹 Storage Type
+Although snapshots are stored in Amazon S3, they are not directly accessible like normal S3 objects.
+AWS manages this storage internally — you cannot browse them in S3 buckets.
+When you create a volume from a snapshot, AWS lazily loads data blocks (on-demand restore) for faster provisioning.
+
+
+# Is it possible to reduce a EBS volume (Just read to get ne idea)
+Yes, it is possible to reduce the size of an EBS volume in AWS, but with some limitations and considerations.
+
+Here’s a breakdown of how it works:
+
+1. For General Purpose SSD (gp3) and other EBS types:
+Directly reducing the size of an EBS volume is not supported directly in AWS.
+However, you can shrink the file system and then create a snapshot and restore the snapshot to a new, smaller volume.
+Steps to reduce the size of an EBS volume:
+Backup: Take a snapshot of the existing volume to prevent data loss.
+Shrink the file system:
+Log into your EC2 instance and reduce the file system size to fit within the desired new volume size.
+For example, if you're using ext4 or xfs, you can resize the file system using commands like resize2fs for ext4.
+Create a new volume: After shrinking the file system, create a new EBS volume with the desired smaller size.
+Copy data: Mount the new volume and copy the data from the old (larger) volume to the new (smaller) one.
+Detach the old volume: Once you’ve confirmed everything is working properly on the new volume, you can detach the old volume.
+2. Elastic Block Store Snapshots:
+AWS allows you to take snapshots of volumes. When reducing the size of a volume, this snapshot is typically useful as a backup or to restore data if necessary.
+Limitations and Considerations:
+Data loss risk: If the volume is not properly resized before transferring data, you risk losing data that exceeds the new smaller volume's capacity.
+Downtime: There may be some downtime during the resizing process since you will need to detach the old volume and attach the new one.
+Volume type: This process is applicable to most volume types, but the exact steps may vary depending on the file system used and the operating system of your EC2 instance.
+Alternative - Elastic File System (EFS):
+If your use case involves frequent resizing and dynamic scaling, consider using Amazon EFS, which automatically scales up and down, eliminating the need to manually adjust volume sizes. However, EFS is not suitable for all workloads, especially those requiring block-level storage.
+
+In summary, while direct reduction of EBS volume size isn’t supported, the process of resizing can be achieved with a workaround involving shrinking the file system, creating a new volume, and transferring the data.
+
+
+
+# I need modify the ebs volume in linux and windows is it possible
+-> yes its possible from console use modify the volumes in section give size u need
+-> In windows go to disk management for linux mount it to achive the modification
+
+#  You have an Ec2 instance that has an unencrypted volume. You want to create another encrypted volume from this unencrypted volume. Which of the following steps can achive this
+-> Create one snapchat of unencrypted volume and copy the snapchat and create volume from that copied snapchat
+
+# What is Amazon EBS-Optimized instance
+-> This optimization provides dedicated throughput between Amazon EC2 and Amazon EBS, which ensures that EBS performance is predictable and consistent.
+-> When you select the amazon EBS-Optimized for instance you will pay additonal hourly charge money for instance.
+
+
+
+# What is File Level Storage:-
+-> File Storage operates at higher level, the operating system level and manage the data as a name hierachy of files and folder
+
+In AWS, File-level storage is mainly provided by EFS (Elastic Block Store).
+
+
+# What is EFS
+-> EFS is a elastic file system it is scalable and fully managed file storage service in provided by AWS.
+-> EFS is provides a simple and elastic file system that can be mounted a mulitple Ec2 instances.
+	Scalability: It is automatically scales your file system
+	Performance: Efs provides the low-latency and high throughput file storage.
+		     EFS is unlimited of Size
+		     EFS is Costly
+
+
+# What is S3
+-> S3 stands for Simple storage service. we can use to store the data at anytime in anywhere in the world.
+-> S3 store user related data store
+-> S3 is 11 time durability provides
+
+# What is the minimum and maximum size of individual objects that you can store in s3
+-> The minimum size of individual objects that you can store in s3 is 0 byte the maximum bytes that you can store for individual objets is 5TB
+
+# What is the maximum individual archive that you can store in glacier
+-> You can store maximum individual archive upto 40TB.
+
+# What are the different storage class in S3
+-> We have seven storage class in s3. we will spilit those seven storage class into four catagires
+	-> Frequently accessed data
+	-> Infrequently accessed dara
+	-> Archival storage
+	-> Intelligent storage
+# Frequently access data
+-> Standard storage class [frequently accessing data we will keep in this storage class]
+-> Reduce redundant storage class [if you keep the data in this storage class after one year you will lose somedata so that AWS is not recommand to use this storage class]
+
+# Infrequently accessed data
+-> Standard-IA [If you want to get the data 6 months once then you will keep the data in this storage class. For backup we will use this class] 
+-> Ozone-IA  [If you will keep data in this storage class it will maintained data at one availablity zone so that AWS is not recommand to use this storage class]
+
+# Archival storage [it is used for backup purpose]
+-> Glacier [if you upload file with 100MB it will store the file with 50MB]
+-> Deep Glacier [if you upload file with 100MB it will store the file with 20MB] [it work as heavy compriser]
+
+# Intelligent storage [it will work you dont know where would you keep the data neither frequently or infrequently then you will keep the data in intelligent storage class]
+
+
+# What is the default storage class in s3
+-> Standard storage class
+
+# What is glacier
+-> Glacier is used for to store the data for backup purpose
+
+# How can you encrypt the data in s3
+-> Severside Encryption  - S3(AES 256 Encryption)
+-> Serverside Encryption - KMS(Key Managnment service)
+-> Serverside Encryption - C (Client Side)
+
+# What are the parameters for S3 pricing
+-> Storage used
+-> Number requests you make
+-> Storage management
+-> Data transfer
+-> Transfer acceleration
+
+# What is the pre-requisite to work with cross region replication in s3
+-> You need to enable the versioning on both source bucket and destnation bucket with cross region replication. 
+-> Also both source and destination bucket should be in different region
+
+# One of my s3 bucket is deleted but i need to restore is there any possible way
+-> If you enable the versioning option we can easily restore
+
+# What is MFA in aws
+-> MFA stands for Multi factor Authentication can add the extract layer of security to your infrastructure by adding second methos of authentication beyond just password and access key.
+
+# What are the authentication in aws
+-> Username/Password
+-> Access key
+-> Access key/session Token
+
+
+Block Storage (EBS): Data stored as fixed-size blocks → best for databases and operating systems.
+File Storage (EFS): Data stored and managed as files and folders → best for shared access between servers.
+Object Storage (S3): Data stored as objects with metadata → best for scalable storage, backups, and static content.
+
+
+# What is IP
+-> IP stands for Internet Protocol.
+-> It is used to communicate data between one system and another over a network.
+-> Every device connected to a network is identified by a unique IP address.
+
+# Types of IP Addresses
+-> We have two main versions of IP:
+-> IPv4 (Internet Protocol version 4)
+-> IPv6 (Internet Protocol version 6)
+
+# IPv4 (Internet Protocol Version 4)
+-> Uses 32 bits to represent an address.
+-> Written in decimal format (e.g., 192.168.0.1).
+-> Supports around 4.3 billion unique addresses.
+-> Contains both Public and Private IP ranges.
+
+✅ Example:
+10.0.0.1, 172.16.0.5, 192.168.1.10
+
+# IPv6 (Internet Protocol Version 6)
+-> Uses 128 bits to represent an address.
+-> Written in hexadecimal format (e.g., 2001:0db8:85a3:0000:0000:8a2e:0370:7334).
+-> Provides a much larger address space (almost unlimited).
+-> Mainly used as Public IP because it’s designed for the modern internet.
+
+🧠 Note:
+One IP address has 4 octets (in IPv4).
+One octet = 8 bits.
+Therefore, IPv4 = 4 × 8 = 32 bits.
+One byte = 8 bits.
+
+| Type     | Bits    | Format            | Example     | Public/Private |
+| -------- | ------- | ----------------- | ----------- | -------------- |
+| **IPv4** | 32-bit  | Decimal (x.x.x.x) | 192.168.1.1 | Both           |
+| **IPv6** | 128-bit | Hexadecimal       | 2001:db8::1 | Public only    |
+
+
+# What is EIP (Elastic IP Address)
+-> Elastic IP (EIP) is a static public IPv4 address in AWS that remains the same even if you stop or restart your EC2 instance, ensuring consistent connectivity.
+
+# By default how many elastic ip address does AWS offer
+-> Each AWS account is allowed to allocate up to 5 Elastic IPs in each Region.
+
+# What is Static IP
+-> It is a constant and permanent IP address.
+-> It never changes even if you stop or restart the instance.
+-> In AWS, a Static IP can be achieved using an Elastic IP (EIP).
+
+# What is Dynamic IP
+-> It is an IP address that changes automatically whenever you stop and restart the instance.
+-> AWS assigns a new public IP from its pool each time the instance starts.
+
+# What is VPC
+-> VPC stands for Virtual Private Cloud in AWS.
+-> It is a virtual network that you can create within AWS.
+-> It allows you to control your own network environment, including IP ranges, subnets, route tables, and gateways.
+
+📘 Note:
+You can assign IP addresses to your VPC using CIDR blocks (Classless Inter-Domain Routing).
+
+# Example CIDR Range
+-> 10.0.0.0/16 → This represents one IPv4 range.
+-> Since IPv4 addresses are 32-bit, and we used /16,
+    32 - 16 = 16 bits left for host addresses  
+    2^16 = 65,536 total IPs (but 5 are reserved by AWS) 
+-> So effectively, you get 65,531 usable IPs.
+-> The /16 block is large, while /28 is the smallest allowed in AWS VPCs.
+
+# CIDR Range Sizes
+| CIDR | Available IPs | Notes                   |
+| ---- | ------------- | ----------------------- |
+| /16  | 65,536        | Largest VPC range       |
+| /24  | 256           | Commonly used           |
+| /28  | 16            | Smallest allowed in AWS |
+
+AWS does not allow CIDR smaller than /28 (like /29, /30, etc.).
+Most common VPC CIDRs are /16 and /24.
+
+# By default how many Ip address does aws reserve in AWS
+-> When you create any subnet in AWS, 5 IP addresses are reserved by AWS and cannot be used by you
+
+| IP Type               | Example (for subnet 10.0.0.0/24) | Why Reserved                        |
+| --------------------- | -------------------------------- | ----------------------------------- |
+| **Network Address**   | 10.0.0.0                         | Identifies the subnet itself        |
+| **VPC Router**        | 10.0.0.1                         | Reserved for internal routing       |
+| **DNS Server**        | 10.0.0.2                         | Reserved for DNS in the subnet      |
+| **Future Use**        | 10.0.0.3                         | Reserved by AWS for future features |
+| **Broadcast Address** | 10.0.0.255                       | Cannot be assigned to an instance   |
+
+# Key Point
+Even though IPv4 doesn’t use broadcast inside AWS VPC, the 5 reserved IP rule still applies.
+
+# Usable IP Calculation in AWS Subnets
+🔹 Formula:
+Usable IPs = (2^(32 – CIDR)) – 5
+(because AWS reserves 5 IPs in every subnet)
+
+| **CIDR Block** | **Total IPs** | **Reserved by AWS** | **Usable IPs** | **Example Subnet Range** |
+| -------------- | ------------- | ------------------- | -------------- | ------------------------ |
+| **/16**        | 65,536        | 5                   | **65,531**     | 10.0.0.0 – 10.0.255.255  |
+| **/20**        | 4,096         | 5                   | **4,091**      | 10.0.0.0 – 10.0.15.255   |
+| **/24**        | 256           | 5                   | **251**        | 10.0.0.0 – 10.0.0.255    |
+| **/28**        | 16            | 5                   | **11**         | 10.0.0.0 – 10.0.0.15     |
+
+# Example:
+-> If you create a subnet with 10.0.1.0/24,
+-> Total IPs = 256
+-> AWS reserves 5 → (10.0.1.0, 10.0.1.1, 10.0.1.2, 10.0.1.3, 10.0.1.255)
+-> So, you can use 251 IPs for your EC2 instances, NAT, etc.
+
+# What is Subnet
+-> A subnet is a smaller network inside a VPC that divides the IP address range (CIDR block) of the VPC into smaller segments.
+-> Subnets are associated with route tables that control how traffic flows within and outside the VPC.
+-> Public subnets typically have a route to an Internet Gateway (IGW) to allow internet access for resources within the subnet.
+-> Private subnets route traffic through a NAT Gateway to access the internet securely without exposing the resources directly.
+
+# What is the difference between Public Subnet and Private Subnet
+
+| Type               | Internet Access             | Typical Use                    | Gateway                                        |
+| ------------------ | --------------------------- | ------------------------------ | ---------------------------------------------- |
+| **Public Subnet**  |   Has internet access       | Web servers, Load balancers    | **Internet Gateway (IGW)**                     |
+| **Private Subnet** |   No direct internet access | Databases, Application servers | **NAT Gateway** (for outbound internet access) |
+
+
+# What is Internet Gateway (IGW)
+-> Internet Gateway provides internet access to the public subnet inside a VPC.
+-> It acts as a bridge between your VPC and the internet.
+-> It supports two-way traffic, meaning it allows:
+    Inbound traffic (from internet → public subnet)
+    Outbound traffic (from public subnet → internet)
+
+✅ Key Point:
+An Internet Gateway must be attached to your VPC and the public subnet route table must include a route like 0.0.0.0/0 → IGW to enable internet access
+
+# What is NAT Gateway (Network Address Translation Gateway)
+-> NAT stands for Network Address Translation.
+-> NAT Gateway allows instances in a private subnet to access the internet (for example, to download updates or reach external APIs).
+-> It works as one-way traffic, meaning:
+    Outgoing traffic: ✅ Allowed (Private → Internet)
+    Incoming traffic: ❌ Blocked (Internet → Private)
+
+📘 Note:
+When a NAT Gateway is attached to a private subnet, it only allows outbound traffic from that subnet.
+No one from the internet can directly access resources inside the private subnet
+
+
+# Difference Between NACL and Security Group
+🔹 NACL (Network Access Control List)
+-> Works at the Subnet Level.
+-> Automatically applied when a subnet is created.
+-> Stateless: You must manually define both Inbound and Outbound rules.
+-> One subnet can have only one NACL attached.
+-> You can create both Allow and Deny rules.
+
+✅ Example:
+If you allow inbound traffic on port 80, you must manually allow outbound traffic on port 80 as well.
+
+🔹 Security Group (SG)
+-> Works at the Instance Level (EC2, RDS, etc.).
+-> You attach a Security Group manually to each resource.
+-> Stateful: If you allow inbound traffic, the response traffic is automatically allowed outbound.
+-> You can attach up to 5 Security Groups to a single instance.
+-> You can create only Allow rules (no Deny rules).
+
+✅ Example:
+If you allow inbound HTTP (port 80), the response will automatically be allowed outbound — no need to create a separate rule.
+
+# How can you control the security to your VPC
+-> you can use security group and NACL to control the security in VPC
+
+# What are the Default Services We Get When We Create a Custom AWS VPC?
+
+| Component                  | Description                                                                                                               |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Main Route Table**       | Automatically created and associated with all subnets by default. You can modify or create new route tables later.        |
+| **Default Network ACL**    | Comes automatically with every VPC. It allows **all inbound and outbound traffic** by default.                            |
+| **Default Security Group** | Automatically created for the VPC. It allows all traffic **within the same SG** and **denies all other inbound traffic**. |
+| **DHCP Option Set**        | Automatically created to provide **DNS resolution** (usually uses AmazonProvidedDNS).                                     |
+| **VPC CIDR Block**         | The IP range you specify while creating the VPC (e.g., 10.0.0.0/16).                                                      |
+
+🔸 Not Created by Default
+-> You must create these manually after the VPC is created:
+-> Subnets (Public/Private)
+-> Internet Gateway (IGW)
+-> NAT Gateway
+-> Custom Route Tables (other than main)
+-> Elastic IP (for NAT or public instances)
+
+# How can you convert the public subnet to private subnet
+-> Remove IGW and add NAT Gateway 
+
+# What is Security group
+-> Security allow you to control the traffic based on port , protocal and source/destination
+-> AWS allow you to control the traffic in and out of your instance through firewall is called security group
+
+# You have chosen a Windows instance with Classic networking, and you want to make some changes to the Security Group. How will these changes be effective?
+-> Any changes made to the Security Group are automatically applied to the Windows instance.
+-> You do not need to restart or stop the instance for the new rules to take effect.
+
+# What is VPC peering connection
+VPC Peering Connection allows you to connect one VPC to another VPC privately using AWS’s internal network.
+
+# To establish the peering connection between two VPC what conditions must be met
+1. Non-Overlapping CIDR Blocks
+    The IP address ranges (CIDR blocks) of both VPCs must not overlap.
+    Example:
+    VPC A → 10.0.0.0/16
+    VPC B → 192.168.0.0/16
+    ✅ Valid
+    ❌ If both have 10.0.0.0/16 → Peering not allowed.
+
+2. Peering Can Be Established
+-> Within the same region (Intra-region Peering).
+-> Across different regions (Inter-region Peering).
+-> Between different AWS accounts (Cross-account Peering).
+
+3. Routing Configuration
+-> After creating the peering connection, you must update the route tables in both VPCs to allow traffic to flow between them.
+
+# what is VPC endpoint service
+-> VPC Endpoint Service allows you to privately share your service (for example, an application running on EC2, ECS, or NLB) with other AWS accounts or VPCs without exposing it to the internet.
+-> It uses the AWS PrivateLink feature to enable secure, private communication between VPCs.
+
+🧠 Simple Example
+-> Suppose you have an application running on EC2 instances behind a Network Load Balancer (NLB) in Account A.
+-> You want users in Account B (or another VPC) to access this service privately — without using the public internet.
+-> You can create a VPC Endpoint Service in Account A, and Account B can create an Interface Endpoint to connect to it.
+
+
+# What are the Types of VPC Endpoints
+
+1️⃣ Interface Endpoint
+-> It creates an elastic network interface (ENI) in your subnet with a private IP address.
+-> Used to connect privately to most AWS services, third-party services, or your own custom services (via PrivateLink).
+-> It supports ~86+ AWS services such as EC2, SSM, CloudWatch, SNS, SQS, etc.
+-> Works over AWS PrivateLink.
+
+✅ Example:
+Connect to ssm.amazonaws.com or sns.amazonaws.com privately via an Interface Endpoint.
+
+2️⃣ Gateway Endpoint
+-> Used to connect to specific AWS services through a gateway target in your route table.
+-> Supports only two AWS services:
+  Amazon S3
+  Amazon DynamoDB
+-> Does not create an ENI, instead it updates the route table to send traffic to the service privately.
+
+✅ Example:
+When you create a Gateway Endpoint for S3, your EC2 instance in the private subnet can access S3 without an Internet Gateway or NAT Gateway.
+
+3️⃣ Gateway Load Balancer Endpoint (GLB Endpoint)
+-> Used to connect to third-party virtual appliances such as firewalls, intrusion detection, or monitoring tools hosted behind a Gateway Load Balancer (GWLB).
+-> It enables transparent traffic inspection between VPCs using PrivateLink.
+-> Ideal for network security and inspection use cases.
+
+✅ Example:
+Send inbound/outbound traffic through a firewall appliance hosted in another VPC using a Gateway Load Balancer Endpoint.
+
+# What is the Virtual Network Interface That You Can Attach to an Instance in a VPC?
+-> The virtual network interface that you can attach to an instance in a VPC is called a Network Interface or Elastic Network Interface (ENI).
+
+✅ Key Points
+-> ENI is a virtual network card for your EC2 instance inside a VPC.
+-> Every EC2 instance has a primary network interface by default.
+-> You can also attach additional ENIs to the same instance (depending on instance type).
+-> Each ENI can have:
+    A Private IP address
+    A Public IP (optional)
+    One or more Security Groups
+    A MAC address
+    A Subnet association
+
+# When Attached to an Amazon VPC, Which Two Components Provide Connectivity with External Networks?
+-> The two components that provide connectivity with external networks are:
+    1. Internet Gateway (IGW)
+    2. NAT Gateway
+
+# What is NAT instance
+-> A NAT Instance is an EC2 instance used to enable internet access for private subnet resources, allowing outbound-only communication while blocking inbound traffic
+
+✅ Key Points
+It’s an EC2 instance running in a public subnet.
+Private instances send traffic to the NAT instance, which forwards requests to the internet and returns responses.
+It allows outbound connections (e.g., software updates, API calls) but blocks inbound connections from the internet.
+You must configure route tables to send private subnet traffic to the NAT instance.
+AWS provides a preconfigured AMI called “Amazon NAT AMI”.
+
+# What is VPN
+-> VPN Stands for Virtual private Network
+-> VPN will create the tunnel between Server and Client to access the data securely over the internet.
+
+# What is DHCP
+-> DHCP stands for Dynamic Host Configuration Protocol.
+-> It is a network management protocol used to automatically assign IP addresses and other network configuration settings such as subnet mask, default gateway, and DNS server to devices on a network.
+-> This helps devices communicate on the network without manually configuring IP settings.
+-> Port Numbers:
+    UDP Port 67 → used by the DHCP Server
+    UDP Port 68 → used by the DHCP Client
+
+
