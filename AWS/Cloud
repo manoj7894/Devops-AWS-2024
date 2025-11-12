@@ -767,3 +767,56 @@ AWS provides a preconfigured AMI called “Amazon NAT AMI”.
     UDP Port 68 → used by the DHCP Client
 
 
+
+# What is IAM
+-> IAM Stands for Identity and Access Management (IAM) that helps us securely control access to AWS resources. 
+-> With IAM, you can manage users, groups, roles, and policies to ensure that the right permissions are assigned to the right entities.
+
+# What is IAM User
+-> An IAM User is an identity within AWS that represents a person or an application that needs to interact with AWS resources.
+
+# What is IAM User Groups
+-> An IAM User Group is a collection of IAM users. The permissions assigned to the group are inherited by all users within that group.
+
+# What is IAM Roles
+-> IAM role is unlike IAM user to interact with AWS resources but roles do not have permanent credentials. It rely on temporary security credentials
+
+# What is IAM Policies
+-> An IAM Policy is a JSON document that defines the permissions granted to an IAM user, group, or role. 
+-> Policies have 2 types of policies
+   -> Managed Policies
+   -> Inline policies
+
+# What is the difference between role and policy
+Simplified Example
+Role Example:
+“Allow EC2 instance to read data from S3” → You create a role with an S3 read-only policy and attach it to the EC2 instance.
+
+Policy Example:
+“Allow a user to manage S3 buckets” → You create a policy granting s3:* permissions and attach it to a specific IAM user or group.
+
+# What are the two types of access that you can provide when you creating the user
+1. Programmatic Access
+-> Used for: Command-line tools, SDKs, and API calls.
+-> Credentials: AWS provides
+		Access Key ID
+		Secret Access Key
+-> Use case example:
+     A developer or application uses the AWS CLI or SDK to upload files to an S3 bucket or start EC2 instances.
+     Example Tools: AWS CLI, AWS SDK, Terraform, Python (boto3).
+
+2. AWS Management Console Access
+-> Used for: Signing in to the AWS web console (GUI).
+-> Credentials:
+	Username and Password (you can also enable MFA for security).
+-> Use case example:
+    An administrator or developer logs into the AWS Console to create and manage resources visually.
+
+
+# I am viewing aws console but unable to launch the instance, i recive IAM error how can i rectify it
+-> I need to give ec2 permission to that IAM user
+
+# I dont want my AWS account id to be exposed to users how can i avoid it
+-> Yes — by default, AWS gives every account a sign-in URL that includes your 12-digit AWS account ID, like this:
+		https://123456789012.signin.aws.amazon.com/console
+-> We can create a custom alias for your AWS account in the IAM console, which replaces your account ID in the login URL.
