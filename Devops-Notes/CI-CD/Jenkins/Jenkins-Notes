@@ -633,3 +633,11 @@ Click Upload.
 Restart Jenkins:
 
 After uploading the plugin, Jenkins typically requires a restart to activate the plugin. You can restart Jenkins from the Manage Jenkins page by selecting Reload Configuration from Disk, or you may need to restart the Jenkins service depending on your setup.
+
+
+# what is the difference between freestyle job and pipeline job in jenkins
+1️⃣ Freestyle Job
+A Freestyle Job is the basic, GUI-based job type in Jenkins.
+
+2️⃣ Pipeline Job
+A Pipeline Job uses code to define the CI/CD workflow written as a Jenkinsfile.
