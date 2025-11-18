@@ -1,6 +1,6 @@
 # What is devops
 -> devops is a culture
--> Devops culture is used to collaboration the development and operation team in software project
+-> Devops culture is used to collaboration the development and operation team with automation to deliver software faster and more reliably.
 
 # What are the principal of devops
 -> Continuous intrigation
@@ -58,6 +58,15 @@
 -> It move forward and reverse direction
 -> Client involvement is ver high
 -> Using devops culture we can easily adept the agile methodology
+
+
+# What is DevSecOps?
+-> DevSecOps means integrating security (Sec) into the DevOps process from the beginning instead of adding it at the end.
+
+ It stands for:
+ 👉 Dev – Development
+ 👉 Sec – Security
+ 👉 Ops – Operations
 
 
 # What is Configuration Management
