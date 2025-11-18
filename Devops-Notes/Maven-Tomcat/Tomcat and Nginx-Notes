@@ -50,10 +50,138 @@ After login upload your war file manually and deploy
 # What is Nginx
 NGINX (pronounced "engine-x") is a high-performance, open-source web server that can also be used as:
 
-✅ Reverse proxy
-✅ Load balancer
-✅ Content cache
-✅ API gateway
+NGINX can act as:
+-> Web Server (serves static content very efficiently)
+-> Reverse Proxy (forwards client requests to backend servers)
+-> Load Balancer (distributes traffic across multiple servers)
+-> Forward Proxy (client-side proxy)
+-> API Gateway (manages and routes API calls)
+-> Caching Server
+-> SSL/TLS Termination Proxy
+
+
+✅ Reverse Proxy
+A reverse proxy sits in front of your backend servers.
+It receives client requests first, then forwards them to internal servers without exposing your backend directly.
+It Act as a behalf of server
+
+Why it’s used:
+-> Protects backend servers (hides internal IPs)
+-> Load distribution across multiple servers
+-> Caching, SSL termination, rate limiting, security filtering
+		Example tools: Nginx, HAProxy, Apache, Traefik
+
+
+
+✅ Load Balancer
+A load balancer distributes incoming traffic across multiple backend servers to ensure:
+	High availability
+	Fault tolerance
+	Better performance
+
+Types:
+L4 Load balancer (TCP/UDP)
+L7 Load balancer (HTTP/HTTPS – works like reverse proxy)
+Example: AWS ALB / NLB, HAProxy, Nginx
+
+
+🔵 L4 Load Balancer (Layer 4 — Transport Layer)
+Works at: TCP/UDP level
+Understands: IP address + Port only
+Does NOT understand: HTTP URL, headers, cookies, methods
+
+How it routes traffic:
+Based on source IP, destination IP, port
+Blindly forwards packets to a backend server
+
+Use cases:
+High-performance TCP/UDP traffic
+Gaming servers, streaming, database proxies
+Environments where simple, fast routing is needed
+Example: AWS NLB, HAProxy (L4 mode)
+
+
+🔵 L7 Load Balancer (Layer 7 — Application Layer)
+Works at: HTTP/HTTPS level
+Understands:
+URL path (e.g., /login, /products)
+HTTP headers
+Cookies
+Methods (GET, POST, etc.)
+
+How it routes traffic:
+Content-based routing (e.g., /api to service A, /auth to service B)
+Can modify requests and responses
+Can do SSL termination, caching, authentication
+
+Use cases:
+Microservices
+APIs
+Websites & web apps
+Anything requiring smart routing
+Example: AWS ALB, Nginx, Traefik
+
+
+✅ Forward Proxy
+A forward proxy is used on the client-side.
+Clients connect to the proxy, and the proxy forwards the request to the internet on behalf of the client.
+
+Why it’s used:
+-> To hide client identity (IP masking)
+-> To block/allow specific sites (corporate networks)
+-> Caching frequently accessed sites
+	Example: Squid Proxy, corporate proxy
+
+✅ API Gateway
+An API gateway manages and controls access to microservices.
+
+What it does:
+-> Request routing
+-> Authentication & authorization
+-> Rate limiting
+-> Logging and monitoring
+-> Aggregating multiple microservice calls into one response
+	Examples: AWS API Gateway, Kong, Apigee, Nginx API Gateway
+
+
+✅ Reverse Proxy vs Load Balancer — Why Both?
+🔵 1. Reverse Proxy = Security + Control
+A reverse proxy mainly provides:
+Security (hiding backend IPs)
+SSL termination
+Caching
+Filtering / WAF
+Traffic inspection
+Forward requests to your application server
+
+👉 It can forward traffic to one backend server or multiple, but that's not its primary job.
+
+Purpose:
+➡️ Protect backend + enhance features
+
+
+🔵 2. Load Balancer = High Availability + Distribution
+A load balancer is specifically built for:
+Distributing traffic evenly across many servers
+Avoiding overload
+Detecting unhealthy servers
+Failover if one server dies
+Auto-scaling support
+
+Purpose:
+➡️ Spread load across multiple servers to avoid downtime
+
+⭐ Why reverse proxy is NOT enough?
+If you use only a reverse proxy and have multiple backend servers:
+
+❌ Reverse proxy does NOT:
+continuously check if servers are healthy
+automatically remove failed servers
+ensure equal traffic distribution
+support millions of concurrent connections efficiently (L4/NLB scale)
+integrate with cloud auto-scaling
+A load balancer is optimized for this.
+
 
 How to install Nginx
 sudo yum update
@@ -76,3 +204,19 @@ After instiling the nginx you will paste your public Ip along with portnumber 80
 -> sudo apt-get install apache2 -y
 -> sudo systemctl status apache2
 -> cd /var/www/html
+
+
+What is the differnece between SSL and TLS
+# SSL (Secure Sockets Layer)
+SSL is an old security protocol used to encrypt data between a client and server.
+Created in the 1990s by Netscape.
+Versions: SSL 1.0 → 2.0 → 3.0
+Now outdated and insecure. (All versions are deprecated)
+👉 Today browsers no longer support SSL.
+
+# TLS (Transport Layer Security)
+TLS is the modern, secure version that replaced SSL.
+More secure, faster, and widely used today.
+Versions: TLS 1.0 → 1.1 → 1.2 → 1.3 (latest and fastest)
+
+👉 When we say “SSL certificate”, we actually mean TLS certificate — names are used interchangeably, but the protocol used is TLS.
