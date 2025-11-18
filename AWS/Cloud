@@ -197,6 +197,24 @@ GLB receives traffic → automatically distributes it across the 3 firewalls →
 This setup scales your network security layer automatically without reconfiguring routing
 
 
+🔍 Quick Summary
+# L3 Load Balancer (Network Layer)
+Routes only based on IP address
+Works at packet-level
+Fastest but least intelligent
+
+# L4 Load Balancer (Transport Layer)
+Routes using IP + Port
+Does not understand HTTP
+Good for TCP/UDP apps
+
+# L7 Load Balancer (Application Layer)
+Understands HTTP
+Can route using URLs, headers
+Supports SSL termination
+Best for modern web applications
+
+
 
 # You are enabled sticky session with ELB. what does it do with your instance
 -> Binds the user session with specific instance
