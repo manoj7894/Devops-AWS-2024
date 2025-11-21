@@ -856,3 +856,408 @@ Policy Example:
 -> Yes — by default, AWS gives every account a sign-in URL that includes your 12-digit AWS account ID, like this:
 		https://123456789012.signin.aws.amazon.com/console
 -> We can create a custom alias for your AWS account in the IAM console, which replaces your account ID in the login URL.
+
+
+
+# What is Amazon CloudWatch?
+-> Amazon CloudWatch is a monitoring and observability service from AWS that helps you track the performance, health, and operational data of your AWS resources and applications.
+
+Key Points to Mention
+✅ 1. Monitoring
+-> CloudWatch collects metrics from services like:
+	EC2
+	RDS
+	Lambda
+	EBS
+	DynamoDB
+	API Gateway
+	… and many more.
+
+✅ 2. Alarms
+-> You can set CloudWatch Alarms to get alerts based on thresholds (CPU usage, memory, disk, latency, errors, etc.).
+
+✅ 3. Logs
+-> CloudWatch Logs stores and analyzes log data from:
+	EC2
+	Lambda
+	VPC flow logs
+	API Gateway logs
+	Application logs
+
+✅ 4. Dashboards & Reporting
+-> You can create custom dashboards for real-time visualization.
+
+✅ 5. Events / Automation
+-> CloudWatch Events (EventBridge) can trigger:
+Lambda
+SNS
+SQS
+Step Functions
+based on events.
+
+
+# What are the Types of Monitoring in Amazon CloudWatch
+-> There are two types of monitoring for EC2 in CloudWatch:
+1️⃣ Basic Monitoring
+2️⃣ Detailed Monitoring
+
+
+# Difference Between Basic Monitoring and Detailed Monitoring
+✅ Basic Monitoring
+-> Sends metrics every 5 minutes
+-> Includes a limited set of default EC2 metrics
+-> Free of cost
+-> Suitable for low-priority workloads or non-production systems
+
+Examples of metrics provided:
+	CPU Utilization
+	Disk Reads/Writes
+	Network In/Out
+
+✅ Detailed Monitoring
+-> Sends metrics every 1 minute
+-> Provides higher granularity and more accurate data
+-> Chargeable (additional cost)
+-> Useful for Auto Scaling, production systems, or applications needing fast scaling responses
+
+Benefits:
+	Better visibility
+	Faster detection of issues
+	Supports AWS Auto Scaling based on 1-minute metrics
+
+
+# What is Amazon CloudFront?
+-> Amazon CloudFront is a Content Delivery Network (CDN) provided by AWS.
+-> It speeds up the delivery of content (images, videos, APIs, websites, files) to users with:
+	Low latency
+	High transfer speeds
+	Improved performance
+-> It uses a global network of Edge Locations to serve content closer to users.
+
+# How CloudFront Works
+1️⃣ DNS Resolution (Finding Nearest Edge Location)
+-> When a user requests content, CloudFront uses Route 53 DNS to direct the request to the nearest Edge Location.
+-> This reduces latency.
+
+2️⃣ Caching Data (Not copying everywhere)
+-> CloudFront does not copy all data to every location.
+-> It caches the content only when a user in that region requests it.
+-> If cached content exists → served immediately
+-> If not → CloudFront fetches from the origin (S3, EC2, ALB, API Gateway, etc.) and caches it
+
+
+# What is the Relationship Between Amazon Route 53 and CloudFront?
+-> Amazon Route 53 and CloudFront work together to deliver content efficiently to users.
+
+✅ 1. Route 53 = DNS Service
+-> Route 53 helps users reach CloudFront by resolving your domain name (example.com) to the nearest CloudFront edge location.
+
+✅ 2. CloudFront = CDN Service
+-> CloudFront delivers the actual content (images, videos, APIs, web pages) from Edge Locations with low latency.
+
+
+
+# What is Amazon Route 53?
+-> Amazon Route 53 is a highly available, scalable, and reliable DNS (Domain Name System) service provided by AWS.
+-> It translates domain names (like example.com) into IP addresses so users can reach your applications.
+
+# What Route 53 Does
+✅ 1. DNS Resolution
+-> It converts domain names into IP addresses:
+		www.example.com → 192.0.2.1
+
+✅ 2. Domain Registration
+-> You can buy and manage domain names (like .com, .in, .net) directly from AWS.
+
+✅ 3. Health Checks
+-> Route 53 can monitor the health of:
+	Websites
+	Servers
+	Load balancers
+	And route traffic only to healthy resources.
+
+✅ 4. Traffic Management (Routing Policies)
+-> Route 53 supports multiple routing policies:
+	Simple
+	Weighted
+	Latency-based
+	Geolocation
+	Failover
+	Multi-value
+
+
+# What is a Hosted Zone in Route 53?
+-> A Hosted Zone in Amazon Route 53 is a container that stores the DNS records for a specific domain or subdomain.
+-> These DNS records determine how Route 53 responds to DNS queries, such as:
+	Which IP address a domain name maps to
+	Where email should be delivered
+	How traffic should be routed across resources
+
+# Types of Hosted Zones
+1️⃣ Public Hosted Zone
+-> Used for domains that must be accessible over the internet
+	Example: example.com
+
+2️⃣ Private Hosted Zone
+-> Used for domains that should resolve only inside a VPC
+	Example: internal corporate environments (e.g., app.internal)
+
+
+# What is a DNS Record?
+-> A DNS (Domain Name System) record is an entry stored in a DNS database that defines how a domain name should be resolved or handled on the internet.
+-> DNS records translate human-readable domain names (like example.com) into machine-readable information such as IP addresses.
+
+Common Types of DNS Records
+🔹 A Record (Address Record)
+-> Maps a domain name to an IPv4 address.
+	Example:
+	  example.com → 192.168.1.10
+
+🔹 AAAA Record
+-> Maps a domain name to an IPv6 address.
+
+🔹 CNAME Record (Canonical Name Record)
+-> Creates an alias that points one domain to another domain.
+	Example:
+	www.example.com → example.com
+
+🔹 MX Record (Mail Exchange Record)
+-> Specifies the mail servers responsible for receiving emails for the domain.
+
+🔹 TXT Record
+-> Stores arbitrary text data. Common uses:
+-> Domain verification (Google, AWS, etc.)
+-> SPF, DKIM, DMARC email security
+
+🔹 NS Record (Name Server Record)
+-> Indicates which DNS servers are authoritative for the domain.
+
+
+# Types of Routing Policies in Route 53
+1️⃣ Simple Routing Policy
+-> Used for a single resource (e.g., one EC2, one ALB). No advanced logic.
+
+2️⃣ Weighted Routing Policy
+-> Distribute traffic across multiple resources based on weight values
+(e.g., 70% to server A, 30% to server B).
+
+3️⃣ Latency Routing Policy
+-> Routes users to the AWS region that provides the lowest network latency (fastest response time).
+
+4️⃣ Failover Routing Policy
+-> Creates active–passive failover.
+If the primary resource fails, traffic is routed to the secondary resource.
+
+5️⃣ Geolocation Routing Policy
+-> Routes traffic based on the geographic location of the user
+(country, continent, or state-level).
+
+6️⃣ Geoproximity Routing Policy (less commonly mentioned but official)
+-> Routes traffic based on location of resources, and allows traffic shifting using a bias value.
+-> Requires Route 53 Traffic Flow.
+
+7️⃣ Multi-Value Answer Routing Policy
+-> Returns multiple healthy IPs for the same domain.
+-> Works like simple load balancing but not a full load balancer.
+
+
+# What is Amazon SQS?
+-> Amazon SQS (Simple Queue Service) is a fully managed, reliable, and scalable message queuing service that allows applications to communicate using messages in a decoupled way.
+-> Key features:
+	Fully managed
+	Serverless
+	Highly scalable
+	Secure
+	Supports asynchronous communication
+
+-> Message Retention:
+	Default retention: 4 days
+	Minimum retention: 60 seconds
+	Maximum retention: 14 days (1209600 seconds)
+	SQS automatically deletes messages older than the retention period.
+
+# Types of SQS Queues
+1️⃣ Standard Queue
+2️⃣ FIFO Queue (.fifo)
+
+⭐ Standard Queue (Default)
+Features:
+-> Available in all AWS regions
+-> Unlimited throughput (no limit on messages per second)
+-> At-least-once delivery
+	A message may be delivered more than once
+-> Best-effort ordering
+	Messages generally maintain order
+	Order is NOT guaranteed
+
+Suitable for:
+-> High throughput systems
+-> Background processing
+-> Systems tolerant to duplicate messages
+
+⭐ FIFO Queue (First-In-First-Out)
+Features:
+-> Queue name must end with .fifo
+-> Available only in selected AWS regions
+-> Guaranteed message order
+	Messages are delivered in the exact order they are sent
+-> Exactly-once processing
+-> No duplicate message delivery
+-> Limited throughput
+	Up to 3,000 messages per second with batching (SendMessageBatch)
+	Up to 300 messages per second without batching
+
+Suitable for:
+-> Banking transactions
+-> Order processing
+-> Inventory systems
+-> Any workflow requiring strict ordering and no duplicates
+
+
+# What is the maximum message size in SQS?
+-> The maximum size of a single SQS message is 256 KB.
+-> This limit applies to both Standard and FIFO queues.
+
+# Can we send messages larger than 256 KB?
+-> Yes, but not directly inside SQS.
+-> To send larger messages:
+	You must store the message payload in S3.
+-> Then send a small SQS message that contains a pointer (S3 object link).
+
+This is done using:
+✔️ SQS Extended Client Library (SQS Extended Client for Java)
+✔️ Or custom implementation with S3 + SQS
+
+-> This allows sending messages up to 2 GB (stored in S3, not in SQS).
+
+
+# What is SNS
+-> SNS stands for Simple notification service
+-> It is fully managed messaging service that enables you to send notification from the cloud to various endpoints such as email, SMS, moblie push notification and more.
+
+
+# What is AWS App Runner?
+-> AWS App Runner is a fully managed service that makes it easy to deploy and run containerized applications or source code directly from GitHub or ECR.
+-> It automatically handles:
+	Infrastructure provisioning
+	Load balancing
+	Auto scaling
+	Security (TLS)
+	Monitoring
+
+You only provide your code or container image — App Runner manages everything else.
+
+Key Capabilities
+Scalability
+Automatically scales up or down based on traffic.
+
+You can configure:
+
+Number of provisioned instances
+
+Max concurrency (how many requests one instance handles)
+
+Security
+
+Fully managed TLS certificates by default (HTTPS out of the box).
+
+IAM-based access control.
+
+Integrated with Amazon CloudWatch for logs and metrics.
+
+Continuous Deployment
+
+Automatically deploys new versions when:
+
+A commit is pushed (GitHub/CodeCommit)
+
+A new image is pushed to ECR
+
+Access
+
+Can be managed via Console, CLI, SDK, and API.
+
+Benefits of App Runner
+1. Easy to Use
+
+No knowledge of servers, VPCs, load balancers, or scaling groups required.
+
+2. Scalable
+
+Auto-scales based on incoming request volume.
+
+Provisioned instances ensure predictable performance.
+
+3. Cost Effective
+
+Pay only for active compute and provisioned instances.
+
+Zero traffic = scale to zero (for on-demand instances).
+
+Features of App Runner
+1. Auto Scaling
+
+Scales instances based on concurrent request load.
+
+Supports both on-demand and provisioned capacity.
+
+2. Deployment
+
+Supports automatic or manual deployments.
+
+Integrates with GitHub, ECR, and CI/CD pipelines.
+
+3. Observability
+
+(Observability means logs + metrics + events)
+
+CloudWatch metrics
+
+CloudWatch logs
+
+Traceability of deployment lifecycle
+
+4. Networking
+
+Public or private services
+
+VPC connector to access private resources
+
+Three Types of Logs
+
+Deployment Logs
+
+Output of build and deployment process.
+
+Application Logs
+
+Logs generated by your application (stdout/stderr).
+
+Event Logs
+
+Actions taken by App Runner during lifecycle (create, scale, deploy, fail events).
+
+
+
+# What is AWS Snowball?
+-> AWS Snowball is a data transfer device provided by AWS that helps move large amounts of data (Terabytes to Petabytes) between your on-premises environment and AWS without using the internet.
+
+# Why Snowball Is Used
+✅ 1. Large Data Transfer
+-> Used when transferring very large datasets (TBs or PBs) because normal internet upload would take too long.
+
+✅ 2. Reduces Network Costs
+No need to upload heavy data over the internet → saves bandwidth costs.
+
+✅ 3. Faster Transfer
+Physical device transfer is much faster than uploading via a normal network.
+
+✅ 4. High Security
+-> Snowball devices come with:
+-> Tamper-resistant hardware
+-> Encryption (256-bit)
+-> Secure key management via AWS KMS
+
+
+
+
