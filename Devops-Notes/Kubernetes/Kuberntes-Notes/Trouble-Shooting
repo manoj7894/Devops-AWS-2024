@@ -121,4 +121,36 @@ spec:
 
 
 
-  
+
+-> File beat --> It will collect the logs
+-> We have three container are running inside container 
+-> First one we call it primay container
+-> Second container we call it sidecar container. It will run as long as primary container running. where we install filebeat to get the logs
+-> Third one we call it init container   --> It will start and complete the task before start primary container then it will exit or remove from the pod 
+
+
+# Pod lifecycle state
+-> Pending state --> Image still downloading or when suitable worker node not available then we will get these status
+-> Running state  --> it will show if even single container is running inside our pod [suppose we have three container in our pod, even if single is running in our pod will show running state]
+-> Successed -> Pod are sucessfully complete the task but container are exited with zero code 
+-> failed  -> Pod are sucessfully executed the task but container exited with errors
+-> crash loop backup error -> Inside the pod container start, crash, restart it is going like a loop
+-> Terminated -> pod has forcely stop or deleted. Container inside the pods are shutdown
+-> evicted --> Kubernetes itself delete the pods from worker node based on worker node resource
+
+
+# Pod communicate
+-> Containers in same pod it will communicate with localhost because it is sharing same network
+-> pod to pod communication in same namespace, it will communicate using with service, it wont communicate with pod ips because if we restart the pod, pod ip will change. That's why we use service to communicate
+-> pod to pod communication in different namespace, it will communicate using FQDN [Fully Qualified domain name]  throug this it will communicate [sevicename.namespace.svc.cluster.local]
+-> pods in different worker nodes Communication works the same as same-node Pods Implemented via:
+      CNI plugins (Calico, Flannel, Weave, Cilium)
+-> pods in different cluster  
+    -> vpe-peering
+    -> Servicemesh
+    -> API Gateway
+
+
+
+
+
