@@ -27,9 +27,15 @@ pipelines:
             # Configure AWS CLI (Using AWS CLI directly instead of pipe)
             - aws sts get-caller-identity
 
-            # Install Trivy for security scanning
-            - curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.39.0/trivy_0.39.0_Linux-64bit.deb -o trivy.deb
-            - dpkg -i trivy.deb
+            # -------------------------------------------------
+            # Install Trivy (OFFICIAL & STABLE METHOD)
+            # -------------------------------------------------
+            - wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
+            - echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" \
+                | tee /etc/apt/sources.list.d/trivy.list
+            - apt-get update
+            - apt-get install -y trivy
+            - trivy --version
 
             # Set custom Trivy cache directory to prevent "no space left on device" error
             - export TRIVY_CACHE_DIR=/tmp/trivy-cache
@@ -39,7 +45,7 @@ pipelines:
             - trivy fs --cache-dir $TRIVY_CACHE_DIR --format table -o fs-report.html .
 
             # Build Docker image for the project
-            - docker build -t "$DOCKER_IMAGE_NAME" .
+            - docker build --no-cache -t "$DOCKER_IMAGE_NAME" .
 
             # Run Trivy image scan on the Docker image
             - trivy image --cache-dir $TRIVY_CACHE_DIR --format table -o image.html "$DOCKER_IMAGE_NAME"
