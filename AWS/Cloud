@@ -1237,6 +1237,25 @@ Event Logs
 
 Actions taken by App Runner during lifecycle (create, scale, deploy, fail events).
 
+# What is AWS Elastic Beanstalk?
+-> AWS Elastic Beanstalk is a Platform as a Service (PaaS) that makes it easy to deploy and run applications on AWS.
+-> Developers can upload their application code, and Elastic Beanstalk automatically handles:
+	Infrastructure provisioning
+	Load balancer configuration
+	Auto Scaling
+	Monitoring
+	Application health management
+
+# What is Amazon SES (Simple Email Service)?
+-> Amazon SES stands for Simple Email Service.
+-> It is a fully managed email service provided by AWS to send emails at scale.
+-> SES can be used to send:
+-	Transactional emails (OTP, password reset, notifications)
+	Marketing or bulk emails
+-> It supports SMTP, API, and AWS SDKs for sending emails.
+-> It is designed to be highly scalable, reliable, and cost-effective
+
+
 
 
 # What is AWS Snowball?
