@@ -21,6 +21,7 @@
 -> kubectl logs <pod-name>  --> To check the logs of pod
 -> kubectl logs <pod-name> -c <containername>  --> To check the logs of pod
 -> kubectl edit pods <podsname> --> To edit the pods
+-> kubectl top pods shows real-time CPU and memory usage of pods using Metrics Server.
 
 # Service Commands
 -> kubectl get svc --> To get services
