@@ -856,63 +856,41 @@ TCP and UDP are network communication protocols. Think of them as rules for how 
 -> VoIP (Zoom, WhatsApp calls)
 -> DNS
 -> Real-time monitoring
+-----------------------------------------------------------------------------------------------------------------
+What is Telnet
+Telnet is a network protocol and command-line tool used to connect to a remote machine or service over TCP.
+Today, Telnet is NOT used for secure remote login
+It is mainly used for:
+	Checking if a port is open
+	Testing application connectivity
+	Debugging firewall / security group issues
 
+| Feature      | Telnet       | SSH          |
+| ------------ | ------------ | ------------ |
+| Encryption   | ❌ No       | ✅ Yes        |
+| Security     | ❌ Unsafe    | ✅ Secure     |
+| Default Port | 23           | 22           |
+| Usage Today  | Testing only | Remote login |
 
+telnet                     # Telnet command
+sudo yum install telnet -y  # Install telnet
+telnet --version           # Check version
+telnet host port           # Check if port is open
+Ctrl + ]                   # Exit telnet
+quit                       # Quit telnet
 
+-> Port is open
+Trying 127.0.0.1...
+Connected to localhost.
 
+-> Port is closed / blocked
+Trying 127.0.0.1...
+telnet: Unable to connect to remote host: Connection refused
 
-
-
-
-
-
-
-
-
-which echo  -->  It give the path of the command
-
-# we have to use below command before use whatis
-sudo mandb  --> To update database
-whatis ls --> To see that command properties
-
-
-
-
-
-
-
-file having 666 permission and directory having 777 permission 
-umask value is 022  (umask 022 it will come defaultly)
-defaulty file will come 644 permission and directory will come 755 permission to add mask value
-
-# umask temporary change
-umask newvalue
-umask 023
-
-# umask permanent change
-vi /etc/bashrc
-
--rwxrwxr-x
-│ │  │  └─ Others (everyone else): r-x → can read and execute
-│ │  └──── Group:                 rwx → can read, write, execute
-│ └─────── Owner (user):          rwx → can read, write, execute
-└───────── File type:             -   → regular file
-
-# To assign ACL permission to the files and directory
-setfacl is used to set Access Control Lists (ACLs) on files and directories, allowing more fine-grained permissions than traditional chmod.
-This lets you give specific users or groups custom access to files, beyond owner/group/others.
-
--> setfacl -m u:username:rwx filename  -> To set user and permission to the file
--> setfacl -m g:groupname:rwx filename  -> To set group and permission to the file
--> setfacl -m o::rwx filename  -> To set other and permission to the file
--> setfacl -m u:username:rwx,g:groupname:rwx,o::rwx filename  -> To set user,group and other permission to file at a time
--> setfacl -Rm u:username:rwx directoryname  -> To set user and permission to the file
--> setfacl -Rm g:groupname:rwx directoryname  -> To set group and permission to the file
--> setfacl -x u:username:rwx filename  -> To delete the user acl permission to file
--> setfacl -x g:groupname:rwx filename  -> To delete the group acl permission to file
--> setfacl -b filename  -> To remove the all permission
--> getfacl filename   -> To check the ACL permission
-
+-> Firewall / SG blocked
+Trying 127.0.0.1...
+Connection timed out
+-----------------------------------------------------------------------------------------------------------------------
 # Booting Process
 -> Bios
 -> MBR
@@ -950,8 +928,180 @@ This lets you give specific users or groups custom access to files, beyond owner
 | 4        | `init 4` | 🔒 **Unused/Custom** – Reserved for admins    |
 | 5        | `init 5` | 🖥️ Multi-user with **GUI (graphical login)** |
 | 6        | `init 6` | 🔁 **Reboot** the system                      |
+------------------------------------------------------------------------------------------------------------------------------
 
 
+
+# What is Screen
+-> screen allows you to run multiple terminal sessions in the background.
+Any process started inside a screen session will keep running even if you exit (detach) from the screen or your SSH connection disconnects.
+screen allows you to:
+	Run long-running commands (builds, servers, scripts)
+	Detach from the session
+	Log out or lose SSH connection
+	Re-attach later and continue exactly where you left off
+	👉 Very useful when deploying apps, running Tomcat, MongoDB restore, etc.
+
+-> Install Screen
+sudo yum install screen -y
+sudo apt install screen -y
+screen --version
+
+screen  --> Start a new screen session
+
+| Shortcut     | Action          |
+| ------------ | --------------- |
+| `Ctrl + A D` | Detach          |
+| `Ctrl + A C` | New window      |
+| `Ctrl + A N` | Next window     |
+| `Ctrl + A P` | Previous window |
+| `Ctrl + A K` | Kill window     |
+
+screen -ls  --> List running screen sessions
+screen -r 1234 --> Re-attach to screen
+
+screen -S tomcat  --> Start the session with name
+screen -r tomcat
+-------------------------------------------------------------------------------------------------
+# How do we rollback in Linux
+In Linux there is no single “rollback” command.
+Rollback depends on what you want to undo (file change, package install, app deploy, config edit, service restart).
+
+# Package
+yum history
+yum history undo <ID>
+yum history undo 15 --> Example
+
+# Rollback a SERVICE restart
+systemctl restart tomcat
+------------------------------------------------------------------------------------------------------------------------
+# How to check the inode usage and inode issues in linux
+In Linux, inode issues happen when the system runs out of inodes, not disk space.
+This is very common on servers (EC2, Tomcat logs, temp files, node_modules, mail queues).
+
+# What is an inode (quick reminder)
+An inode stores metadata about a file (not file content)
+Each file = 1 inode
+Millions of small files = inode exhaustion
+
+df -i  --> Check inode usage
+-----------------------------------------------------------------------------------------------------
+# What is a Zombie Process?
+Parient process start the Child process. Child process has finished the execution and exit but if the parent process
+does not collect this exit status then child remains as a zombie process untill parent retrives it.
+
+# How a Zombie Process is created (Real flow)
+Parent process starts a child process
+Child process finishes its job
+Child sends SIGCHLD to parent
+Parent does not call wait()
+Child becomes a zombie
+
+
+ps -el | grep Z
+-----------------------------------------------------------------------------------------------------------------------
+# What is update
+update means:
+It refreshes the package list
+
+# What is upgrade
+upgrade means:
+Installs newer versions of already installed packages
+-------------------------------------------------------------------------------------------------------------------------
+# Where to see the kernel logs
+dmesg  or journalctl -k
+dmesg -T --> To see with timestamp
+
+# wget and curl
+wget --> wget is mainly used for downloading files. (web get)
+wget https://example.com/file.zip
+
+curl is used to transfer data to/from a server (APIs, web requests).
+curl https://example.com
+
+sudo iptables -A INPUT -s 192.168.1.100 -j DROP    # Block IP address
+sudo iptables -D INPUT -s 192.168.1.100 -j DROP    # Remove block rule
+sudo iptables -L -n # List firewall rules
+
+which echo  -->  It give the path of the command
+whatis ls --> To see that command properties
+-----------------------------------------------------------------------------------------------------------------
+# What is RDP
+RDP (Remote Desktop Protocol) is a Microsoft protocol used to remotely access and control another computer over a network.
+
+# What RDP does
+Provides a graphical desktop session
+Allows keyboard and mouse control
+Commonly used to access Windows servers and PCs
+
+Default port
+Port: 3389
+Protocol: TCP
+
+# Real-world example
+Connecting from your laptop → Windows EC2 instance
+Admin managing a Windows Server remotely
+
+| S.No | Commmand                  | Purpose                    |
+| ---- | ------------------------- | -------------------------- |
+| 1    | `ls -l`                   | List files and directories |
+| 2    | `cd /home/ec2-user`       | Change directory           |
+| 3    | `pwd`                     | Show current directory     |
+| 4    | `mkdir demo`              | Create directory           |
+| 5    | `touch file.txt`          | Create empty file          |
+| 6    | `cp a.txt b.txt`          | Copy file                  |
+| 7    | `mv old.txt new.txt`      | Move or rename file        |
+| 8    | `rm -r demo`              | Delete file or directory   |
+| 9    | `find / -name file.txt`   | Search files               |
+| 10   | `grep error app.log`      | Search text in file        |
+| 11   | `cat file.txt`            | View file content          |
+| 12   | `less app.log`            | View large file            |
+| 13   | `head file.txt`           | View first 10 lines        |
+| 14   | `tail file.txt`           | View last 10 lines         |
+| 15   | `vim file.txt`            | Edit file                  |
+| 16   | `nano file.txt`           | Simple text editor         |
+| 17   | `tar -cvf a.tar dir/`     | Create archive             |
+| 18   | `gzip file.txt`           | Compress file              |
+| 19   | `gunzip file.txt.gz`      | Decompress file            |
+| 20   | `wget https://site/file`  | Download file              |
+| 21   | `curl ifconfig.me`        | Check public IP            |
+| 22   | `ssh user@server`         | Login to remote server     |
+| 23   | `scp a.txt user@ip:/tmp`  | Copy files remotely        |
+| 24   | `chmod 755 script.sh`     | Change permissions         |
+| 25   | `chown user:grp file`     | Change owner               |
+| 26   | `ps aux`                  | Show running processes     |
+| 27   | `top`                     | Show cpu and memory process|
+| 28   | `kill 1234`               | Kill a process             |
+| 29   | `df -h`                   | Disk usage                 |
+| 30   | `du -sh demo/`            | Directory size             |
+| 31   | `free -h`                 | Memory usage               |
+| 32   | `uname -a`                | OS information             |
+| 33   | `uptime`                  | System running time        |
+| 34   | `lsblk`                   | Disk and partitions        |
+| 35   | `who`                     | Logged-in users            |
+| 36   | `whoami`                  | Current user               |
+| 37   | `hostname`                | Hostname                   |
+| 38   | `hostname -I`             | Private IP address         |
+| 39   | `netstat -tulnp`          | Check open ports           |
+| 40   | `ss -tulnp`               | Modern port check          |
+| 41   | `iptables -L -n`          | View firewall rules        |
+| 42   | `systemctl restart nginx` | Manage services            |
+| 43   | `journalctl -xe`          | View system logs           |
+| 44   | `crontab -e`              | Schedule jobs              |
+| 45   | `tree`                    | Directory structure        |
+| 46   | `nproc`                   | CPU core count             |
+| 47   | `echo "Hello"`            | Print text                 |
+| 48   | `sudo reboot`             | Restart server             |
+| 49   | `telnet localhost 8080`   | Test port connectivity     |
+| 50   | `chsh -s /bin/bash`       | Change login shell         |
+
+
+sudo iptables -A INPUT -s 192.168.1.100 -j DROP    # Block IP address
+sudo iptables -D INPUT -s 192.168.1.100 -j DROP    # Remove block rule
+sudo iptables -L -n # List firewall rules
+
+which echo  -->  It give the path of the command
+whatis ls --> To see that command properties
 
 
 | Command    | What It Shows                              | Example Output        |
@@ -966,67 +1116,6 @@ This lets you give specific users or groups custom access to files, beyond owner
 | `uname -i` | **Hardware platform** (may show `unknown`) | `x86_64` or `unknown` |
 | `uname -o` | **Operating system name**                  | `GNU/Linux`           |
 
-
-
-# What is SCP and rsync
--> Both will copy the files from one remote server to another remote server
--> After make changes in local file if you try to copy 
--> SCP will copy the entire file
--> rsync will only copy the changes from one remote server to another remote server
-
-
-Top Linux commands that are commonly used in DevOps: ♾
-
-| #  | Command      | Description                          | Example                                       |
-| -- | ------------ | ------------------------------------ | --------------------------------------------- |
-| 1  | `ls`         | List directory contents              | `ls -l` → Long list with details              |
-| 2  | `cd`         | Change directory                     | `cd /home/user`                               |
-| 3  | `pwd`        | Print current working directory      | `pwd` → `/home/user`                          |
-| 4  | `mkdir`      | Create a new directory               | `mkdir myfolder`                              |
-| 5  | `touch`      | Create an empty file                 | `touch file.txt`                              |
-| 6  | `cp`         | Copy files or folders                | `cp file.txt backup.txt`                      |
-| 7  | `mv`         | Move or rename files or folders      | `mv file.txt folder/` or `mv old.txt new.txt` |
-| 8  | `rm`         | Remove files or folders              | `rm file.txt` or `rm -r folder/`              |
-| 9  | `find`       | Search for files                     | `find / -name file.txt`                       |
-| 10 | `grep`       | Search for text inside files         | `grep "hello" file.txt`                       |
-| 11 | `cat`        | Show file content                    | `cat file.txt`                                |
-| 12 | `less`       | View large files page by page        | `less file.txt` (press `q` to quit)           |
-| 13 | `head`       | Show first 10 lines of a file        | `head file.txt`                               |
-| 14 | `tail`       | Show last 10 lines of a file         | `tail file.txt`                               |
-| 15 | `vi` / `vim` | Open file in text editor             | `vim file.txt`                                |
-| 16 | `nano`       | Easy text editor                     | `nano file.txt`                               |
-| 17 | `tar`        | Archive files                        | `tar -cvf archive.tar myfolder/`              |
-| 18 | `gzip`       | Compress a file                      | `gzip file.txt` → creates `file.txt.gz`       |
-| 19 | `gunzip`     | Decompress a `.gz` file              | `gunzip file.txt.gz`                          |
-| 20 | `wget`       | Download a file from the internet    | `wget https://example.com/file.txt`           |
-| 21 | `curl`       | Download or send data                | `curl -O https://example.com/file.txt`        |
-| 22 | `ssh`        | Login to remote server               | `ssh user@192.168.1.1`                        |
-| 23 | `scp`        | Securely copy files between systems  | `scp file.txt user@host:/path/`               |
-| 24 | `chmod`      | Change file permissions              | `chmod 755 script.sh`                         |
-| 25 | `chown`      | Change file owner                    | `chown user:group file.txt`                   |
-| 26 | `chgrp`      | Change group ownership               | `chgrp developers file.txt`                   |
-| 27 | `ps`         | Show running processes               | `ps aux`    --> It shows current running process, dont show update                                  |
-| 28 | `top`        | Live view of CPU, memory, processes  | `top` (press `q` to quit)  --> Shows real-time updating view of system processes, sort cpu, memory
-|       htop        Uses colors, shows bars for CPU, memory, and swap
-| 29 | `kill`       | Terminate a process                  | `kill 1234` (where 1234 is the PID)           |
-| 30 | `df`         | Show disk space usage                | `df -h` (human readable)                      |
-| 31 | `du`         | Show folder size                     | `du -sh myfolder/`                            |
-| 32 | `free`       | Show memory usage                    | `free -h`                                     |
-| 33 | `uname`      | Show system info                     | `uname -a`                                    |
-| 34 | `ifconfig`   | Show IP and network info             | `ifconfig` (older systems)                    |
-| 35 | `ping`       | Test connection to a server          | `ping google.com`                             |
-| 36 | `netstat`    | Show network connections             | `netstat -tuln`                               |
-| 37 | `iptables`   | Manage firewall rules                | `iptables -L`                                 |
-| 38 | `systemctl`  | Manage services (start, stop, etc.)  | `systemctl restart nginx`                     |
-| 39 | `journalctl` | View system logs                     | `journalctl -xe`                              |
-| 40 | `crontab`    | Schedule tasks                       | `crontab -e`                                  |
-| 41 | `lsblk`      | Show block device info (disks, USBs) | `lsblk`                                       |
-
--> uptime  --> To check the load average  [Checking load average helps you understand how much work (load) your Linux system is handling over time ]
--> sudo systemctl reboot    --> Reboot the server
-
-**lsblk** = What disks and partitions exist
-**df -h** = How much space is used/available
 
 
 -> Example of How to add cron jobs
