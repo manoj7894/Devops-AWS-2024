@@ -44,13 +44,14 @@ after understand the binary language it will return back the result to shell. sh
 
 
 # Linux Commands
+-------------------------------------------------------------------------------------------------------------------------------
 touch f1                      # Create a file
 touch f2 f3 f4                # Create multiple files
 touch -d "2023-09-29 10:10:10" manoj   # Change file date & time
 touch .filename               # Create a hidden file
 touch .f1 .f2                 # Create multiple hidden files
 mv f1 .f2                     # Convert normal file to hidden file
-
+-------------------------------------------------------------------------------------------------------------------------------
 ls                # List non-hidden files and directories
 ls -l             # Long format listing
 ls -lt            # Sort by time (latest first)
@@ -64,13 +65,12 @@ ls -al [Fm]*      # Files starting with F or m
 ls -al [!Fm]*     # Files not starting with F or m
 ls -l f*          # Files starting with f
 ls -al ??         # Files with exactly 2 characters
-
-
+-------------------------------------------------------------------------------------------------------------------------------
 mkdir dir              # Create a directory
 mkdir d1 d2 d3         # Create multiple directories
 mkdir -p a/b/c         # Create nested directories
 mkdir -m 755 dir       # Set permissions at creation
-
+-------------------------------------------------------------------------------------------------------------------------------
 cd dir_name      # Move into directory
 cd ..            # One level back
 cd               # Go to home
@@ -80,7 +80,7 @@ cd /             # Root directory
 cd ../..         # Two levels up
 cd /path/to/dir  # Absolute path
 cd ~user         # Another user's home
-
+-------------------------------------------------------------------------------------------------------------------------------
 rm file                # Delete file
 rm f1 f2               # Delete multiple files
 rm *.txt               # Delete by extension
@@ -91,7 +91,7 @@ rm -rf *               # Delete all files & dirs (not hidden)
 rm -i file              # Interactive delete  (Asks confirmation before deleting the file.)
 rm -v file              # Verbose delete  (Shows what file is being deleted.)
 rmdir dir               # Delete empty directory
-
+-------------------------------------------------------------------------------------------------------------------------------
 cat file               # View file content
 cat f1 f2 f3           # View file content for multiple files
 cat > file             # Create / overwrite file
@@ -111,7 +111,7 @@ more file              # Best for large files (page by page) View file page by p
 | Search            | ✅ Yes         | ❌ Limited |
 | Large files       | ✅ Best        | ⚠️ OK      |
 | Used in real work | ✅ Very common | ❌ Rare    |
-
+-------------------------------------------------------------------------------------------------------------------------------
 cp f1 f2                # Copy file to file
 cp f1 /dir/             # Copy file to directory
 cp f1 f2 f3 /dir/       # Copy multiple files
@@ -120,7 +120,7 @@ cp -a dir1 dir2         # Best way to copy directory (Copy everything including 
 cp -i file1 file2       # Interactive copy
 cp -v file1 file2       # Verbose output
 cp *.txt /backup/       # Copy by extension
-
+-------------------------------------------------------------------------------------------------------------------------------
 mv old new             # Rename file or dir
 mv <file_1> <file_2>   # Moves file_1 to file_2 (If file_2 exists → overwritten) (If file_2 does NOT exist → rename)
 mv file /dir/          # Move file to directory
@@ -129,216 +129,272 @@ mv f1 f2 f3 /dir/      # Move multiple files
 mv -i file1 file2      # Interactive
 mv -v file1 file2      # Verbose
 mv -n file1 file2      # No overwrite
+-------------------------------------------------------------------------------------------------------------------------------
+echo "text"            # Print text
+Redirect --> used to write the output of a command to a file and if the file not present, it will create the new file
+(replace the original content of the file)
+echo "text" > file     # Overwrite file
+
+append (>>) ----> it will write the output of a command at the end of the file and if the file not present, it will create the new file
+echo "text" >> file    # Append to file
+-------------------------------------------------------------------------------------------------------------------------------
+find / -name filename              # Search file or directory by name from root
+find / -type f -name filename
+find / -type d -name dirname       # Search directory by name
+find / -inum 12345                 # Search file using inode number
+find / -type l                     # Find symbolic link files
+find / -user username              # Find files owned by a user
+find / -size 10k                   # Find files of exactly 10 KB
+find / -size -10k                  # Find files smaller than 10 KB
+find / -size +10k                  # Find files larger than 10 KB
+find . -type f                     # Find regular files (recursive)
+find . -type d                     # Find directories (recursive)
+find . -type f -name "*.c"         # Find all .c files
+find . -type f -name "*.txt"       # Find all .txt files
+find . -mtime -5                   # Find files modified in last 5 days
+find . -mtime +5                   # Find files modified more than 5 days ago
+find . -type f -empty              # Find empty files
+find . -type f ! -empty            # Find non-empty files
+find . -type f -perm 777           # Find files with exact permission 777
+find . -iname filename             # Case-insensitive file search
+find . -type f -name "*.log" -delete  # Find and delete .log files
+
+find is recursive by default
+. → current directory
+/ → root directory
+Use sudo when searching /
+
+Units:
+k → KB
+M → MB
+G → GB
+
+| Option    | Meaning                 |
+| --------- | ----------------------- |
+| `-type f` | Regular file            |
+| `-type d` | Directory               |
+| `-type l` | Symbolic link           |
+| `-name`   | Case-sensitive search   |
+| `-iname`  | Case-insensitive search |
+| `-size`   | File size               |
+| `-mtime`  | Modified time           |
+| `-perm`   | Permissions             |
+| `-delete` | Delete found files      |
+-------------------------------------------------------------------------------------------------------------------------------
+date                              # Show current date & time
+date +%T                          # Show time only (HH:MM:SS)
+date +%D                          # Show date only (MM/DD/YY)
+date +%B                          # Show month name
+date +%Y                          # Show year
+date --help                       # Show help for date command
+timedatectl                       # Show time, date & timezone details
+sudo date -s "2023-09-30 10:18:20" # Manually set date & time
+
+timedatectl                       # Check current timezone & NTP status
+timedatectl list-timezones        # List all available timezones
+sudo timedatectl set-timezone Asia/Kolkata  # Set timezone to IST
+
+sudo timedatectl set-ntp true     # Enable NTP (auto time sync)
+sudo timedatectl set-ntp false    # Disable NTP (manual time)
+timedatectl status                # Show NTP & clock sync status
+
+sudo date -s "YYYY-MM-DD HH:MM:SS" # Manual date & time setup
+-------------------------------------------------------------------------------------------------------------------------------
+head file_name            # Display first 10 lines (default)
+head -n 5 file_name       # Display first 5 lines
+head -10 file_name        # Display first 10 lines
+
+tail file_name            # Display last 10 lines (default)
+tail -n 5 file_name       # Display last 5 lines
+tail -10 file_name        # Display last 10 lines
+-------------------------------------------------------------------------------------------------------------------------------
+Pipe [ | ] ----> To pass the output of a command as input of the next command
+
+|                              # Pipe: pass output of one command as input to another
+head -8 file | tail -2          # Print 7th & 8th lines of a file
+getent passwd | grep ss         # Search user entry
+getent group | grep training    # Search group entry
+ls -l | grep filename           # Search file from directory listing
+-------------------------------------------------------------------------------------------------------------------------------
+grep -----> It is used to Search for a particular pattern/string in a file
+
+grep <pattern> <file_name>            # Search and display lines containing the pattern
+grep -w <pattern> <file_name>         # Search only whole words (not substrings)
+grep -e <pattern1> -e <pattern2> <file_name>   # Search multiple patterns in a file
+grep '^pattern' <file_name>            # Display lines starting with the pattern
+grep 'pattern$' <file_name>            # Display lines ending with the pattern
+grep -v <pattern> <file_name>          # Display lines NOT containing the pattern
+grep -c <pattern> <file_name>          # Count number of matching lines
+grep -i <pattern> <file_name>          # Case-insensitive search
+grep -n <pattern> <file_name>          # Show line numbers with matching lines
+grep -r <pattern> <directory>          # Recursive search inside directory
+grep -l <pattern> <file_name>          # Show only file names that match
+grep -o <pattern> <file_name>          # Print only the matched pattern
+grep -E "pat1|pat2" <file_name>         # Extended regex (OR condition)
+-------------------------------------------------------------------------------------------------------------------------------
+To open / view files in Linux 
+head <file_name>        # View first 10 lines of the file
+tail <file_name>        # View last 10 lines of the file
+less <file_name>        # View file line by line (scroll up & down)
+more <file_name>        # View file page by page (forward only)
+cat <file_name>         # Display file content
+cat > <file_name>       # Create and write content to a file
+vi <file_name>          # Create or edit a file using vi editor
+
+File types
+- (normal files)
+d (directory files)
+c (Charactor files)
+b (Block files)
+l (Link files)
+s (symbolic file)
+-------------------------------------------------------------------------------------------------------------------------------
+Word Count
+wc <file_name>          # Display number of lines, words, and characters in a file
+wc -l <file_name>       # Display only number of lines
+wc -w <file_name>       # Display only number of words
+wc -c <file_name>       # Display only number of characters (bytes)
+-------------------------------------------------------------------------------------------------------------------------------
+vim -> vim stands for improved version of vi text editor
+vi <file_name>                 # Create or open a file
+Vim Has Multiple Modes.
+
+Normal Mode (default mode)
+-> Used for navigation, delete, copy, paste, undo
+-> Press Esc to enter Normal Mode from anywhere
+dd     → Delete a line
+yy     → Copy a line
+p      → Paste below
+u      → Undo last change
+U      → Undo all changes on current line
+gg     → Go to first line
+G      → Go to last line
+w      → Move cursor word by word (forward)
+
+Insert Mode
+-> Used to insert or edit text
+i   → Insert before cursor
+a   → Insert after cursor
+o   → Open new line below
+O   → Open new line above
+-> Press Esc to return to Normal Mode
+
+Visual Mode
+Used to select text
+v        → Character-wise selection
+V        → Line-wise selection
+Ctrl+v   → Block (column) selection
+-> After selection:
+y → copy
+d → delete
+
+Command-Line (Ex) Mode
+Used for save, quit, search, replace
+Enter by pressing : from Normal Mode
+:w      # Save
+:q      # Quit
+:wq     # Save and quit
+:q!     # Quit without saving
 
 
+u                     # Undo
+:set nu               # Show line numbers
+:set nonu             # Remove line numbers
+:4                    # Move cursor to 4th line
+dd                    # Delete current line
+:/word                # Search for a word
 
+:%s/old/new/g         # Replace all occurrences (case-sensitive)
+:%s/old/new/gi        # Replace all occurrences (case-insensitive)
+% → All lines
+s → Substitute
+g → Global (all matches in line)
+i → Case-insensitive
+-> Examples
+:2s/old/new/ig         # Replace in 2nd line
+:2,3s/old/new/ig       # Replace from line 2 to 3
+:2,$s/old/new/ig       # Replace from line 2 to end
+:2s/old/new/ig | 5s/old/new/ig    Replace in 2nd and 5th lines
 
+-> File password protection
+:X                    # Set password for file
+:X → Enter → Enter    # To remove password
+-------------------------------------------------------------------------------------------------------------------------------
+sed ----> stream editor, used to find the and replace, delete and also to print the lines
 
+sed 's/<old_word>/<new_word>/ig' <file_name> ----> it will replace the oldword with newword in all the lines and displays the output on the terminal
 
+-i ----> represents the permanent change ( when we use -i, it does not display the output on the terminal)
 
+sed -i  '1s/<old_word>/<new_word>/ig' ----> it will apply the changes on the first line
+sed -i  '1,3s/<old_word>/<new_word>/ig' ----> it will apply the changes from 1st to 3rd line
+sed -i  '2,$s/<old_word>/<new_word>/ig' ----> it will apply the changes from 2nd end of the file line
+sed -i  '2s/<old_word>/<new_word>/ig; 5s/<old_word>/<new_word>/ig' ----> it will apply the changes on 2nd and 5th line
 
+sed -i '2d' <file_name> ----> it will delete the 2nd line
+sed -i '2,$d' <file_name> ---> it will delete the lines from 2nd to end of the file
+sed -i -e '2d' -e '5d' <file_name> ----> it will delete 2nd and 5th line of a file
+sed -i '2,4d' <file_name> ---> it will delete the lines from 2nd to 4th line of the file
 
+sed -n '5p' <file_name> ----> To print 5th line of a file
+sed -n '2,5p' <file_name> ----> To print lines from 2nd to 5th line
+sed -n '2,$p' <file_name> ----> To print lines from 2nd to end of the file
+sed -n  -e '3p' -e '5p' <file_name> ----> To print 3rd and 5th line
+-------------------------------------------------------------------------------------------------------------------------------
+cut ---> cut command is used to cut the file column wise
 
+cut -d " " -f1 <file_name> ------> It will cut the first column
 
--> date  --> To show the date
--> date +%T  --> It give only time
--> date +%D  --> It give only date
--> date +%B  --> It give only month
--> date +%Y  --> It give only year
--> date --help
--> timedatectl  --> To see details of time
--> sudo date -s "2023-09-30 10:18:20"   --> To set the particular time
--> ll  --> It show the all files
--> touch manoj --> Cretae the file
--> touch -d "2023-09-29 10:10:10" manoj  --> To change date and time of file
--> ls  --> To see the list of files
--> cd ~  --> Change the directory
--> ls -al  --> To show the hidden files
--> ls -i   --> To show the inode numbers of files
--> ls -ail
--> ls -al [Fm]*   --> It will open the all the files forth having f m
--> ls -al [!Fm]*  --> It will not give forth f and m files
--> ls -l f*  --> It open all forth f files
--> ls -al ?? --> It give one only two letters files
--> touch filename  --> To create the file
--> touch .filename  --> To create the hidden file
--> echo "writesomething" > filename --> To create the file
--> echo "writesomthing" >> filename  --> To add something to existing file
--> cat filename  --> To see the data in file
--> cat > filename   [ctrl d] --> To create the file
--> cat >> filename  --> To add something to existing file
--> cp filename destinationname  --> To copy the files from one place to another place
--> cp -R dirname destinationname  --> To copy the dir from one place to another place
--> mv oldname newname  --> To change the file name (or) To move the files from one place to another place
--> mkdir dirname  --> To create the dir
--> find / -name filename    --> To search files
--> sudo find / -type d -name "dir name"    --> To search the directory
--> find / -inum enterinode number  --> To search files based on inode number
--> find / -type l   --> To search file based on type ex link(l) block(b) character(c) normal(-)
--> find / -user username    --> Seach the files based on user
--> find / -size 10k   --> search the files based on size
--> find / -size -10k  --> search the files based on below 10k size files
--> find / -size +10k  --> search the files based on above 10k size files
--> rm filename  --> To delete the file
--> rmdir dirname  --> To delete the dirname
--> rm -rf dirname  --> To delete the dir forcefully
--> rm -rf * --> To delete all the data
--> su -   --> To login into the root user
--> sudo su -  --> To login into the root user
--> sudo su username  --> To enter into the particular user without asking password
--> su username  --> To enter into the particular user
--> vi /etc/ssh/sshd_config  --> To enable authentication option and change the ssh port number   [The main configuration file for the SSH daemon (sshd), which controls how your Linux machine accepts SSH connections.]
-      [ Remove the # and change the number. For example: Port 2222]
-      [PasswordAuthentication yes     Remove the # and Login the use with password, if we no we can login without asking password]
+-d ---> delimiter
+" " --> separator
 
--> sudo vim /etc/sudoers  --> To give the root permission to users and groups
-      manoj ALL=(ALL) NOPASSWD:ALL     --> for user
-      %developers ALL=(ALL) ALL        --> This lets all users in the developers group use sudo
-  
+Note: We cannot have the multiple separator/function in cut
 
-# To open the files
--> head (To see the first 10 lines)
--> tail (To see the last 10 lines)
--> less (To see the line by line)
--> more (To see page by page)
--> cat (To create and open the file)
--> vi (To create and edit the file)
+ex:1
+si name section subject
+1  abc   A      Maths
+2  def   B      English
+3  xyz   C      Science
+4  mno   D      Social
 
-# Filter commands
--> head (To display the top n lines)
-   head -n filename
-   head -10 filename
--> tail (To display the last n lines) 
-    tail -n filename
-    tail -10 filename
--> pipe(To execute the two commands at a time)
--> grep -> global regular expression point
-   ls -l | grep filename
-   ls -l | grep ^b  -> cap will consider the first letter of the file
-   ls -l | grep t$  -> dollar will consider the last letter of the file
--> more
-   more filename
--> less
-   less filename
+cut -d " " -f1,3 <file_name> ----> it will cut the 1st and 3rd column
+cut -d " " -f1-3 <file_name> ----> it will cut 1st to 3rd column 
 
--> What is the difference between More and less
+ex2: 
+si-name-section-subject
 
-| Feature                       | `more`                              | `less`                                     |
-| ----------------------------- | ----------------------------------- | ------------------------------------------ |
-| 📄 **Basic Purpose**          | View text one screen at a time      | View text one screen at a time             |
-| 🔁 **Scroll Back**            | ❌ Only forward                      | ✅ Forward **and backward**                 |
-| 🔍 **Search**                 | Basic (forward only `/pattern`)     | Advanced (forward `/`, back `?`)           |
-| 📦 **Load Behavior**          | Loads the entire file at once       | Loads on-demand (faster for big files)     |
-| ⌨️ **Navigation**             | Space = next page, q = quit         | `j` = down, `k` = up, `G` = end, `g` = top |
-| 🧠 **Usage Comfort**          | Very basic                          | Powerful and user-friendly                 |
-| 🚀 **Speed with large files** | Slower                              | Faster and efficient                       |
-| 🛠️ **Custom Features**       | No line editing or advanced options | Many features, better for scripting        |
+cut -d "-" -f1 <file_name> ----> it will cut the first column in a file
 
+echo "si-name-section-subject" | cut -d "-" -f1
+-------------------------------------------------------------------------------------------------------------------------------
+awk ---> It is used to cut the file column wise ,row wise and where the multiple functions are available
 
-| Metaphor                                                                                                 | Meaning |
-| -------------------------------------------------------------------------------------------------------- | ------- |
-| `more` is like **scrolling down a printed book** — you can't go back.                                    |         |
-| `less` is like **opening a digital PDF reader** — you can go up/down, search, jump to top/bottom easily. |         |
+-F ----> Field Value
 
+awk -F " " '{print$1}' <file_name> -----> it will cut the first column
+awk -F " " '{print$2}' <file_name> -----> it will cut the second column
+awk -F " " '{print$2,$3}' <file_name> -----> it will cut the 2nd and 3rd column
+awk -F " " '{print$2,$3,$5}' <file_name> -----> it will cut the 2nd,3rd and 5th  column
+awk -F " " '{print$NF}' <file_name> -----> it will cut the last column
+awk -F " " '{print$(NF-1)}' <file_name> -----> it will cut the last 2nd column
 
-🎯 Final Verdict:
-✅ Use less for better navigation, especially for large files or log files.
-🆗 Use more if you're on a very minimal system or only need simple forward scrolling.
+awk '{print}' <file_name> ----> To print the contents of the file , its an alternative command for the cat
 
-# File types
--> - (normal files)
--> d (directory files)
--> c (Charactor files)
--> b (Block files)
--> l (Link files)
--> s (symbolic file)
+awk 'NR==2' <file_name> ----> it will display or cut the 2nd row
+awk 'NR==2 || NR==3' <file_name> ---> it will display the 2nd and 3rd row
+awk 'NR==2 || NR==3 || NR==5' <file_name> ---> it will display the 2nd,3rdand 5th row
+awk 'NR>1' <file_name> ----> It will cut/display all the rows after 1st
+awk 'NR>1 && NR<4' <file_name> ---> It will cut/display all the rows between 1st and 4th
+-------------------------------------------------------------------------------------------------------------------------------
+sudo ---> super does user
+it gives the permission for us or a user to execute the commands as a root user
 
-# What is the difference between Hard link and softlink
-# HardLink
--> ln existingfile newfile [To creating the file]
--> Hard link having same inode numbers
--> Data will available after the remove the orginal file
--> It is not allowed for directory
--> comparitively faster 
+sudo <command> ----> it will provide the root privileges  to the current user (ec2-user)
+To switch to the root user ----> sudo su -
+exit ---> To comeout from the root/current user
 
-# Softlink
--> ln -s existingfile newfile [To creating the file]
--> Soft link having different inode numbers
--> Data will not available after the remove the orginal file
--> It is allowed for directory
--> comparitively slow
-
-# You will have another command to find the files
-sudo yum install mlocate
-after install you have to update your data base so that you have to execute below command to update database
-sudo updatedb  --> To update database
-locate filename  --> To find files
-which echo  -->  It give the path of the command
-
-# we have to use below command before use whatis
-sudo mandb  --> To update database
-whatis ls --> To see that command properties
-
-# What is vim
--> vim stands for improved version of vi text editor
-
-# Vim Has Multiple Modes.
-1. 📝 Normal Mode (default after opening a file)
-      -> Used for navigation, copying, pasting, deleting, searching, etc.
-      -> You cannot insert text in this mode.
-      -> Press Esc to return to Normal Mode from any other mode.
-
-      📌 Examples:
-         dd – delete a line
-         yy – copy a line
-         p – paste below
-         u – undo
-         U - Undo all changes on the current line since you entered it
-         gg - It will place the cursor starting
-         G - It will place the cursor end of the line
-         w - It will shift the cursor word by word inforword direction
-      
-
-2. ⌨️ Insert Mode
-      Used to insert or edit text.
-      Enter this mode from Normal Mode by pressing:
-      
-      i – insert before cursor
-      a – append after cursor
-      o – open new line below the sentences
-      O - open new line above the sentences
-      
-      
-      Return to Normal Mode with Esc
-
-3. 🔎 Visual Mode
-      Used to select text.
-      Enter from Normal Mode:
-      
-      v – character-wise selection
-      V – line-wise selection
-      Ctrl+v – block (column) selection
-      
-      After selecting, you can copy (y), delete (d), etc.
-
-4. 🛠️ Command-Line Mode (also called Ex Mode)
-Used to run vim commands like save, quit, search, or replace.
-Enter it from Normal Mode by typing : (colon).
-
-Example commands:
-:w – write (save)
-:q – quit
-:wq – save and quit
-:q! – force quit without saving
-:/ -> To search the words
-:s/hello/hi  -> To replace the word
-:%s/hello/hi  -> To replace the all the words
-: se nu  -> It giving the serial numbers
-:4 -> it will place the cursor at 4th place
-:X -> To set the password to the file
-:X enter, enter -> To remove the passoword to the file
-
-
+su - <user_name> ----> To switch to different user (-)  ---> it loads the user env and moves onto there home directory  
+su - ss
 
 # User Management
 -> We have three type of user in linux
@@ -354,59 +410,476 @@ GI -> It having collection people (group ID)
 -> normal user
 1) manoj  2) password  3) 1000-60000 4) 1000-60000 5) somewriting 6) /home 7) bin/bash
 
--> sudo useradd username   --> To create username
--> sudo passwd username    --> To create passwd to username
--> sudo userdel username   --> To delete the username
--> sudo passwd -d username --> To delete the passwd to user
--> sudo passwd -S username --> To see passwd status of user
-      L → Locked
-      P → Password set
+
+# User Management
+sudo useradd username                 # Create a new user
+sudo passwd username                  # Set password for user
+sudo userdel username                 # Delete user (without home directory)
+sudo userdel -r username              # Delete user along with home directory
+sudo passwd -d username               # Delete user password
+sudo passwd -S username               # Show password status
+      L  → Locked
+      P  → Password set
       NP → No password
--> sudo usermod -l newuser olduser  --> To change the username
--> sudo usermod -u idnumber username  --> To change the userid number
--> sudo usermod -L username --> To lock the user   [If we lock the user. User could not able to login]
--> sudo usermod -U username --> To unlock the user
--> cat /etc/passwd  --> To see the user
--> sudo cat /etc/shadow  -->  To see passwds to the users
--> sudo chage -l username  --> It give the all data of passwd about user
--> sudo chage username   --> To change the existing passwd details.
--> sudo groupadd groupname --> To create the group
--> sudo gpasswd groupname  --> To create passwd to the group
--> sudo groupdel groupname  --> To delete group
--> sudo gpasswd -r groupname --> To delete passwd to group
--> sudo groupmod -n newname oldname --> To change the group name
--> sudo groupmod -g groudidnum groupname  --> To change the groupid
--> sudo useradd -G groupname username    --> To add new user to the group
--> sudo usermod -aG groupname username   --> To add user to the group
--> sudo gpasswd -d username groupname    -->  To delete user from group
--> groups username   --> Verify the user are added in group or not
--> cat /etc/group  --> To see the groups
--> sudo cat /etc/gshadow  --> To see the group passwd
 
-# We have two types of groups 
--> primary group
--> secondary group
 
--> Primary group: Primary group will add automatically when we create the user                
--> Secondary group: Secondary group will not add automatically when we create the user. We should create seperately
--> we can assign 16 groups to user in linux. primary group would be within 16 groups. we can assign 15 groups to the user
+# Modify User
+sudo usermod -l newuser olduser        # Change username
+sudo usermod -u uid username           # Change user ID (UID)
+sudo usermod -L username               # Lock user (disable login)
+sudo usermod -U username               # Unlock user
+sudo usermod -d /new/home username     # Change home directory
+sudo usermod -s /bin/bash username     # Change login shell
 
-# Permissions to the files and directories
--> sudo chmod 775 filename  --> To give permission to the files
-read permission=4
-write permission=2
-execute permission=1
-no permission=0
--> sudo chown username filename  --> To add user to the file  [If we want to remove the user to that file just we Change ownership of the file from one user to another use no option is the to delete] 
--> sudo chgrp groupname filename  --> To add group to the file 
--> sudo chown -R username filename  --> To add user to the directory
--> sudo chgrp -R groupname filename  --> To add group to the directory
--> sudo chmod u+s filename  --> To set the setuid permission to the file [Everyone will see the file]
--> sudo chmod u-s filename  --> To remove setuid permission to the file
--> sudo chmod g+s filename  --> To set the setgid permission to the file[only peoples who woule be in group they can only see]
--> sudo chmod g-s filename  --> To remove the setgid permission to the file
--> sudo chmod o+t filename  --> To set the sticky bit permission to the file[only file user can see]
--> sudo chmof o-t filename  --> To remove the stcky bit permission to the file
+
+# View User Information
+cat /etc/passwd                       # List users
+sudo cat /etc/shadow                  # View user password info
+getent passwd                         # List users (system + LDAP)
+id username                           # Show UID, GID & groups
+
+
+# Password Aging (chage)
+sudo chage -l username                # Show password expiry details
+sudo chage -M 90 username             # Set password expiry to 90 days
+sudo chage username                   # Modify password aging interactively
+
+# Group Management
+sudo groupadd groupname               # Create group
+sudo groupdel groupname               # Delete group
+sudo groupmod -n newname oldname      # Rename group
+sudo groupmod -g gid groupname        # Change group ID (GID)
+
+# Add / Remove User from Group
+sudo useradd -G groupname username    # Add user to group (new user)
+sudo usermod -aG groupname username   # Add existing user to group
+sudo gpasswd -d username groupname    # Remove user from group
+
+# Verify Groups
+groups username                       # Show groups of user
+cat /etc/group                        # List groups
+sudo cat /etc/gshadow                 # Group security info
+getent group                          # List groups (system + LDAP)
+
+su - username                         # Switch user
+sudo su -                             # Switch to root user
+whoami                                # Show current user
+who                                   # Show logged-in users
+last                                  # Login history
+
+
+To provide the user sudo permission, we need to add the user in the sudoers file
+
+vi /etc/sudoers
+
+<user_name> ALL=(ALL) NOPASSWD: ALL
+ss          ALL=(ALL) NOPASSWD: ALL  ----> user
+%training   ALL=(ALL) NOPASSWD: ALL  ----> group
+-------------------------------------------------------------------------------------------------------
+To enable password authentication in the server
+1. Be a root user ----> sudo su -
+2. vi /etc/ssh/sshd_config
+3. make passwordauthentication yes
+4. systemctl restart sshd
+
+Note: When the user is created, automatically the group also gets created
+When u delete the user group deleted automatically but no other users are present in that group
+-------------------------------------------------------------------------------------------------------------------------------
+Permissions for file and directoy
+
+owner group others
+rw-   r--   r--.
+6     4     4
+
+r ---> read  ------> 2^2 ---> 4
+w ---> write  -----> 2^1 ---> 2
+x ---> execute ----> 2^0 ---> 1
+
+chmod <permission> <file_name> --------------> setting the permission for a file
+
+chmod -R <permission> <directory_name> ------------------> Setting the permission for a directory
+
+chmod 777 <file_name>
+chmod 644 <file_name>
+chmod 555 <file_name>
+chmod 700 <file_name>
+
+chmod 777 <file_name> ----> we are setting the permission for a file, where owner group and others has got read write and execute permission
+
+u ---> owner
+g ---> group
+o ---> others
+
+chmod u+rwx <file_name> ----> it add read, write and execute permission to the owner
+chmod g+rw  <file_name> ----> it adds read, write permission to the group
+chmod o-r <file_name> ----> it removes read permission from others
+chmod u-x <file_name> ----> it removes the execute permission from the owner
+
+sudo chmod u+s file        # Set SetUID (run as file owner)
+sudo chmod u-s file        # Remove SetUID
+
+sudo chmod g+s file        # Set SetGID (run as group owner)
+sudo chmod g-s file        # Remove SetGID
+
+sudo chmod o+t dir         # Set Sticky Bit (only owner can delete files)
+sudo chmod o-t dir         # Remove Sticky Bit
+
+
+setfacl is used to set fine-grained permissions for specific users or groups beyond traditional owner / group / others.
+
+setfacl -m u:user:rwx file          # Set ACL for user
+setfacl -m g:group:rwx file         # Set ACL for group
+setfacl -m o::rwx file              # Set ACL for others
+setfacl -m u:user:rwx,g:group:rwx file  # Multiple ACL entries
+setfacl -R -m u:user:rwx dir        # Recursive ACL for user
+setfacl -x u:user file              # Remove user ACL
+setfacl -x g:group file             # Remove group ACL
+setfacl -b file                     # Remove all ACLs
+getfacl file                        # View ACL permissions
+setfacl -d -m u:user:rwx dir        # Default ACL
+-------------------------------------------------------------------------------------------------------------------------------
+umask ----> it is the default permission set to a file/directory in the linux
+
+default permission of a file and directory 
+file ---> 666
+Directory ---> 777
+
+umask 002
+
+666   777   666
+002   002   000
+---   ---   ---
+664   775   666
+
+To set the umask value
+umask <value>
+
+ex: umask 000
+666   777
+000   000
+---   ---
+666   777
+
+To make the changes permanently  ----> /etc/profile
+sudo su -
+vi /etc/profile
+umask <value>
+just restart the session (permanent change)  exit
+-------------------------------------------------------------------------------------------------------------------------------
+Links ----> To create the shortcut of a file
+
+Softlinks:
+ln -s <original_path_of_the_file> <softlink_name> ----> it will create the softlink of the file in PWD
+
+A softlink will point towards the path  of the file, once the original file gets deleted/removed the softlink will not work
+
+Hardlink:
+ln <original_path_of_the_file> <hardlink_name> ----> it will create the hardlink of the file in PWD
+
+Hardlink will point towards the inode of the file,  so even if original file gets deleted, the hardlink still works
+Both orginalfile and Hardlink will share the same inode number
+
+inode: Inode is an unique identification number given to a file, which points towards the memory block
+ls -i <file_name/Hardlink_name>
+-------------------------------------------------------------------------------------------------------------------------------
+SSH ----> Secure Shell or secure socket shell, it is the network protocol that gives users/administrators to secure way to access the computer/server
+
+
+Protocol       Port
+SSH            22
+SFTP           22
+FTP            21
+HTTP           80
+HTTPS          443 
+MySQL          3306
+PostgreSQL     5432
+MongoDb        27017
+DynamoDB       8000
+
+Application
+Jenkins       8080
+tomcat        8080
+
+Port -----> A port is a Virtual Access Point, where the network connection start and end, Each port is associated with Particular service or process
+
+# SSH passwordbased
+ssh -i <path_to_pem_key> username@hostname
+ssh -i Devops-Nov-2025.pem ec2-user@172.31.13.34
+
+chmod 400 <pem_key>
+<path_to_pem_key> ----> This is the keypair/pem_key of the Secondary Server
+username -------------> Username of the secondary Server
+hostname -------------> Private or Public if of the secondary Server
+
+# SSH Passwordless 
+
+ssh-keygen -t rsa ----> it is used to generate the rsa key (public and private key), with which we can set up the passwordless connection
+
+ls -a ----> It is used list all files/folder including the hidden files/directories
+ls -d .* ---> To list only the hidden files/directories
+
+now in .ssh folder, copy the contents of id.rsa.pub file from the primary server to the authorized_keys of the secondary server, which is located in the .ssh folder
+
+
+ssh <username>@<hostname> 
+ssh ec2-user@172.31.13.34 
+
+username -------------> Username of the secondary Server
+hostname -------------> Private or Public IP of the secondary Server
+
+exit  -----> To exit from the secondary server
+-------------------------------------------------------------------------------------------------------------------------------
+SCP (secure copy) ----> It is used to copy the files/directories from the primary server to secondary server
+
+with password
+scp -i <path_to_pem_key> <file/directory> username@hostname:<destination path of the secondary server>
+
+ex:
+scp -i Devops-Nov-2025.pem example ec2-user@172.31.13.34:/home/ec2-user/
+
+Without Password:
+scp <file/directory> username@hostname:<destination path of the secondary server>
+scp  Linux-Nov-2025.txt  ec2-user@172.31.13.34:/home/ec2-user/
+
+rsync ----> we can also use rsync to copy the files/directories from one server to the anather server , but the major difference with scp is, in rsync, if there is any failure in data transfer, the rsync will resume the copy process from where it got stopped
+
+rsync -avz <file/directory> username@hostname:<destination path of the secondary server>
+rsync -avz demo1 ec2-user@172.31.13.34:/home/ec2-user/
+
+a ---> Archive mode (preserves permission, timestamp etc.)
+v ---> verbose mode
+z ---> Compress data during data transfer
+
+with PEM KEY
+rsync -avz -e "ssh -i /path/to/key.pem" <file/directory> ec2-user@172.31.13.34:/home/ec2-user
+-------------------------------------------------------------------------------------------------------------------------------
+ping 
+
+ping <hostname> ----> it is used to ping the anather server
+ping 0 -----> it is used to ping the current server
+
+ex:
+ping www.google.com
+-------------------------------------------------------------------------------------------------------------------------------
+ps -ef -----> To list all the running process (sshd,systemd,cron)  (e- show Every process running on the system, f-show Full-format listing (detailed output))
+ps -u <user_name> ----> it will show you all the process started by an user
+ps -c  --> It show major running process
+
+
+PID ---> Process ID
+
+sudo yum install docker
+
+Services:
+gracefully
+sudo systemctl status <service_name> ----> To check the status of the service
+sudo systemctl start <service_name> ----> To start the service
+sudo systemctl stop <service_name> ----> To stop the service
+sudo systemctl restart <service_name> ----> To restart the service
+sudo systemctl enable <service_name> ----> it automatically starts the service, when the server gets rebooted
+
+or
+sudo service <service_name> stop
+sudo service <service_name> start
+sudo service <service_name> restart
+sudo service <service_name> status
+
+sudo systemctl status docker
+sudo systemctl start docker
+sudo systemctl stop docker
+sudo systemctl restart docker
+sudo systemctl enable docker
+
+Forcefully:
+sudo systemctl kill <service_name>
+sudo systemctl kill docker
+
+Forcefully Process:
+-9 ----> To forcefully kill the process
+
+kill <PID> ----> To kill the process given by the PID (gracefully)
+kill -9 <PID> ----> To kill the process given by the PID (forcefully)
+kill -9 4525
+
+killall -9 <process_name>. ----> To kill the process given by the process_name
+killall -9 -u <user_name> -----> To kill all the processes started by an user
+killall -9 -u ec2-user
+
+top ----> To check all the running process,memory and cpu etc.
+
+uptime ---> To check from how long the server is running and the load average 
+01:54:28 up 27 min,  1 user,  load average: 0.09, 0.04, 0.01
+Load average: cpu consumption in last 1min, 5min and 15 min
+
+q ----> To exit from the running process in linux
+----------------------------------------------------------------------------------------------------------------------------------------------------
+bashrc and bash_profile ----> These files get executed every time automatically when the session starts
+
+bashrc and bash_profile are located in the hidden files ( ls -a )
+
+bashrc ---> nonlogin shells
+bash_profile ----> login shells
+
+whenever you make some changes to the bashrc and bash_profile , the session needs to be restarted to affect the changes
+
+history ----> To check the commands given to the linux
+bash_history ---> it will store all the commands given to linux from the day of launching the server
+
+we can also setup alias(shortcut) in bashrc/bash_profile for a command (these values you cannot use in programs)
+
+alias FE="find -type f -empty"
+alias RM="rm -rf *"
+
+Environment variables
+export FM="Welcome to the linux class" (temporary)
+echo $FM
+welcome to the linux class
+-----------------------------------------------------------------------------------------------------------------------------------------------------
+uniq and sort
+
+uniq <file_name> ----> To display the uniq values in a file
+
+drawback with uniq command is , it will only remove the duplicate values, if they are adjecent to one anthor, to fix this issue we use sort and uniq commands together
+
+sort <file_name> ----> Sort the values
+sort -r <file_name> --> Reverse order
+
+sort <file_name> | uniq
+----------------------------------------------------------------------------------------------------------------------------------------------------
+tee
+
+ls -l | tee <file_name> ---> It is used to write the output of a command to file and it also display the output on the terminal
+
+ls -l | tee -a <file_name>
+----------------------------------------------------------------------------------------------------------------------------------------------------
+& ----> Run the script/command in the background
+
+syntax: commad/script &
+ex: rsync -avz demo1 ec2-user@172.31.13.34:/home/ec2-user &
+
+nohup java -jar app.jar &
+ps -ef | grep app.jar
+
+fg ----> To bring the command/script to the foreground
+To view all the background jobs ---> jobs
+to bring back to the foreground ----> fg %<job_id>
+                                  ex: fg %1
+----------------------------------------------------------------------------------------------------------------------------------------------------
+netstat   # Used to display network connections, routing tables, ports, and socket statistics
+sudo yum install net-tools
+
+netstat                    # Show network connections
+netstat -a                 # All listening & connected ports
+netstat -l                 # Listening ports only
+netstat -tulnp             # TCP/UDP ports with PID & process
+netstat -tulnp | grep 8080  # Find process using a specific port
+
+| Option | Meaning   | Explanation             |
+| ------ | --------- | ----------------------- |
+| `-t`   | TCP       | Show TCP connections    |
+| `-u`   | UDP       | Show UDP connections    |
+| `-l`   | Listening | Show listening ports    |
+| `-n`   | Numeric   | Show IP & port numbers  |
+| `-p`   | Process   | Show PID & process name |
+
+
+ss                         # Modern replacement for netstat
+ss -tulnp                  # Show TCP/UDP listening ports with process
+ss -ltn                    # Show listening TCP ports
+ss -u                      # Show UDP sockets
+ss -s                      # Socket statistics
+
+sudo lsof -i :PORT         # Find process using a specific port
+
+Socket basics (Correct)
+TCP/UDP sockets are identified by IP + Port
+UNIX domain sockets use file paths
+
+/run/docker.sock
+/run/systemd/private
+
+Socket states (Correct)
+LISTEN → Waiting for connections
+ESTABLISHED → Active connection (data transfer happening)
+
+TCP/UDP sockets use IP + port to identify endpoints.
+
+TCP and UDP are network communication protocols. Think of them as rules for how data is sent from one system to another over a network.
+
+-> What is TCP (Transmission Control Protocol)
+   TCP is reliable and connection-oriented
+   Key features:
+	Connection is established first (handshake)
+	Data is guaranteed to arrive
+	Data arrives in correct order
+	If data is lost → it is retransmitted
+	Slightly slower (because of checks)
+
+# Example
+-> We are trying to connect with any server through browser
+-> First i will create TCP connection, that's we called to TCP connection (Handshake)
+   This is called 3-way handshake:
+   -> Browser will ask sever can i connect with you (SYN)
+   -> Server Yes i am ready to connect (SYN-ACK)
+   -> Browser Okay let's start to talk (ACK)
+
+# Where TCP is used:
+🌐 Web browsing (HTTP / HTTPS)
+📧 Email (SMTP, IMAP)
+📁 File transfer (FTP, SFTP)
+🐱‍💻 SSH
+🐘 Database connections (MySQL, PostgreSQL)
+
+# What is UDP (User Datagram Protocol)
+  UDP is fast and connectionless
+  Key features:
+	No connection setup
+	Faster than TCP
+	No guarantee of delivery
+	No order guarantee
+	No retransmission
+
+# Example
+-> We are trying to open netflex 
+-> After open login control by TCP (login, authentication)
+-> Audio / Video stream → UDP
+
+# Why UDP here?
+-> If 1 video packet is lost → no retransmission
+-> Video continues without freezing
+-> Small glitches are acceptable
+-> Speed matters more than perfection
+
+# Where UDP is used:
+-> Online gaming
+-> Video streaming
+-> VoIP (Zoom, WhatsApp calls)
+-> DNS
+-> Real-time monitoring
+
+
+
+
+
+
+
+
+
+
+
+
+
+which echo  -->  It give the path of the command
+
+# we have to use below command before use whatis
+sudo mandb  --> To update database
+whatis ls --> To see that command properties
+
+
+
+
+
+
 
 file having 666 permission and directory having 777 permission 
 umask value is 022  (umask 022 it will come defaultly)
