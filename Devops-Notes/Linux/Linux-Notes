@@ -42,18 +42,104 @@ after understand the binary language it will return back the result to shell. sh
 -> kernal:- It translate into binary language, interface between shell and hardware
 -> Hardware: it will understand the binary language
 
-# Types of shell
--> sh    -> shell
--> bash -> Born again shell
--> csh  -> C-shell
--> ksh  -> korn-shell
 
--> cat /etc/shells  -> To see the types of shells
+# Linux Commands
+touch f1                      # Create a file
+touch f2 f3 f4                # Create multiple files
+touch -d "2023-09-29 10:10:10" manoj   # Change file date & time
+touch .filename               # Create a hidden file
+touch .f1 .f2                 # Create multiple hidden files
+mv f1 .f2                     # Convert normal file to hidden file
 
-# What is shell scripting
--> Shell is executable file it containg mulitple commands that are executed sequently.
+ls                # List non-hidden files and directories
+ls -l             # Long format listing
+ls -lt            # Sort by time (latest first)
+ls -lrt           # Sort by time (oldest first)
+ls -lrth          # Reverse time order with human-readable size
+ls -al            # Show all files including hidden
+ls -il            # Show inode numbers
+ls -l | grep abc  # Filter specific file
+ll                # Alias for ls -alF
+ls -al [Fm]*      # Files starting with F or m
+ls -al [!Fm]*     # Files not starting with F or m
+ls -l f*          # Files starting with f
+ls -al ??         # Files with exactly 2 characters
 
-# Linux Basic comamdns
+
+mkdir dir              # Create a directory
+mkdir d1 d2 d3         # Create multiple directories
+mkdir -p a/b/c         # Create nested directories
+mkdir -m 755 dir       # Set permissions at creation
+
+cd dir_name      # Move into directory
+cd ..            # One level back
+cd               # Go to home
+cd ~             # Go to home
+cd -             # Previous directory
+cd /             # Root directory
+cd ../..         # Two levels up
+cd /path/to/dir  # Absolute path
+cd ~user         # Another user's home
+
+rm file                # Delete file
+rm f1 f2               # Delete multiple files
+rm *.txt               # Delete by extension
+rm -r dir              # Delete directory recursively
+rm -rf dir             # Force delete directory
+rm *                   # Delete all files (not hidden)
+rm -rf *               # Delete all files & dirs (not hidden)
+rm -i file              # Interactive delete  (Asks confirmation before deleting the file.)
+rm -v file              # Verbose delete  (Shows what file is being deleted.)
+rmdir dir               # Delete empty directory
+
+cat file               # View file content
+cat f1 f2 f3           # View file content for multiple files
+cat > file             # Create / overwrite file
+cat >> file            # Append content
+tac file               # Reverse output
+cat -n file            # Line numbers  Shows line numbers (including blank lines)
+cat -b filename        # Line numbers  Line numbers for non-empty lines only
+cat -A file            # Show special chars
+cat f1 f2 > f3         # Merge files
+less file              # Best for large files (line by line) Scroll up & down, search (/word), jump (G, gg)
+more file              # Best for large files (page by page) View file page by page Scroll only forward
+
+| Feature           | `less`        | `more`        |
+| ----------------- | ------------- | ---------     |
+| Scroll up         | ✅ Yes         | ❌ No      |
+| Scroll down       | ✅ Yes         | ✅ Yes     |
+| Search            | ✅ Yes         | ❌ Limited |
+| Large files       | ✅ Best        | ⚠️ OK      |
+| Used in real work | ✅ Very common | ❌ Rare    |
+
+cp f1 f2                # Copy file to file
+cp f1 /dir/             # Copy file to directory
+cp f1 f2 f3 /dir/       # Copy multiple files
+cp -R dir1 dir2         # Copy directory
+cp -a dir1 dir2         # Best way to copy directory (Copy everything including hidden files)
+cp -i file1 file2       # Interactive copy
+cp -v file1 file2       # Verbose output
+cp *.txt /backup/       # Copy by extension
+
+mv old new             # Rename file or dir
+mv <file_1> <file_2>   # Moves file_1 to file_2 (If file_2 exists → overwritten) (If file_2 does NOT exist → rename)
+mv file /dir/          # Move file to directory
+mv dir1 dir2           # Move or rename directory
+mv f1 f2 f3 /dir/      # Move multiple files
+mv -i file1 file2      # Interactive
+mv -v file1 file2      # Verbose
+mv -n file1 file2      # No overwrite
+
+
+
+
+
+
+
+
+
+
+
 -> date  --> To show the date
 -> date +%T  --> It give only time
 -> date +%D  --> It give only date
