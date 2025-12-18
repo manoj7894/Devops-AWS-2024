@@ -1041,6 +1041,22 @@ Protocol: TCP
 # Real-world example
 Connecting from your laptop → Windows EC2 instance
 Admin managing a Windows Server remotely
+----------------------------------------------------------------------------------------------------------------------------
+who ----> To check all the users who has logged onto the system
+whoami ---> To check the current user
+hostname ---> To check the private ip
+curl ifconfig.me ---> To check the public ip
+uname ----> To check the operating system
+uname -a ---> To check all the details of the operating system
+uname -r ---> To check the kernel version of operating system
+free -h ----> To check the ram usage
+df -h -----> To check the disk usage    (disk, free, human readble)
+nproc ----> To check the number of CPU allocated for the system
+du -sh <file/directory> ----> To check the size of a file or a directory   (disk, usage, size, human readble)
+lsblk  --> To see volume blocks (lsblk = LiSt BLocK devices)
+tree ----> The tree command is sued to check the directory structure
+top ----> To check all the running process,memory and cpu etc.
+------------------------------------------------------------------------------------------------------------------
 
 | S.No | Commmand                  | Purpose                    |
 | ---- | ------------------------- | -------------------------- |
