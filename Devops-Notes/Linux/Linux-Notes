@@ -160,6 +160,15 @@ find . -type f -empty              # Find empty files
 find . -type f ! -empty            # Find non-empty files
 find . -type f -perm 777           # Find files with exact permission 777
 find . -iname filename             # Case-insensitive file search
+find . -maxdepth 1 -type f -name "*.c.txt" | rename '.c' '.txt' *.c    --> To replace the file name from .c to .txt
+| Part       | Meaning           |
+| ---------- | ----------------- |
+| `rename`   | Batch rename tool |
+| `'.c'`     | Pattern to match  |
+| `'.txt'`   | Replacement       |
+| `t1.c`     | File to rename    |
+
+
 find . -type f -name "*.log" -delete  # Find and delete .log files
 find . -type f -exec du -sh {} +    # Find the files with sizes
 find . -type f -exec du -sh {} \;
@@ -171,6 +180,25 @@ find . -type f -exec du -sh {} \;
 | `{}`             | Placeholder for found file         |
 | `\;`             | End of `-exec` (run once per file) |
 | `+`              | End of `-exec` (run in batches)    |
+
+
+-exec mv {} {}.txt \;
+This is the most important part 👇
+
+-exec
+Tells find to run a command on each matched file
+
+du -sh
+Find the size
+
+{}
+Placeholder for current file found by find
+	{} → ./t1.c
+
+\;
+Marks the end of the -exec command
+Required by find
+
 
 
 find . -type f -exec du -h {} + \
