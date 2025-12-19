@@ -148,7 +148,8 @@ find / -size 10k                   # Find files of exactly 10 KB
 find / -size -10k                  # Find files smaller than 10 KB
 find / -size +10k                  # Find files larger than 10 KB
 find / -type f -name "*.zip" -mtime -1    # Find .zip files modified in last 1 day
-find / -type f -name "*.tar" -mtime -1     # find / -type f -name "*.tar" -mtime -1
+find / -type f -name "*.tar" -mtime -1     # Find .tar files modified in last 1 day
+find . -type f -name "*.zip" -mmin -60     # Find .zip files modified in last 60 min
 find . -type f                     # Find regular files (recursive)
 find . -type d                     # Find directories (recursive)
 find . -type f -name "*.c"         # Find all .c files
@@ -160,6 +161,33 @@ find . -type f ! -empty            # Find non-empty files
 find . -type f -perm 777           # Find files with exact permission 777
 find . -iname filename             # Case-insensitive file search
 find . -type f -name "*.log" -delete  # Find and delete .log files
+find . -type f -exec du -sh {} +    # Find the files with sizes
+find . -type f -exec du -sh {} \;
+
+
+| Part             | Meaning                            |
+| ---------------- | ---------------------------------- |
+| `find . -type f` | Find all files                     |
+| `{}`             | Placeholder for found file         |
+| `\;`             | End of `-exec` (run once per file) |
+| `+`              | End of `-exec` (run in batches)    |
+
+
+find . -type f -exec du -h {} + \
+| sort -rh \
+| head -5 \
+| awk '{print $2}' \
+| xargs gzip
+
+| Part               | Purpose              |
+| ------------------ | -------------------- |
+| `du -h`            | Get file sizes       |
+| `sort -rh`         | Sort largest first   |
+| `head -5`          | Pick top 5           |
+| `awk '{print $2}'` | Extract filenames    |
+| `xargs gzip`       | Compress those files |
+
+
 
 find is recursive by default
 . → current directory
@@ -380,7 +408,21 @@ awk -F " " '{print$2,$3,$5}' <file_name> -----> it will cut the 2nd,3rd and 5th 
 awk -F " " '{print$NF}' <file_name> -----> it will cut the last column
 awk -F " " '{print$(NF-1)}' <file_name> -----> it will cut the last 2nd column
 
+find . -maxdepth 1 -type f -name "*.sh" | awk -F "." '{print$NF}'   --> Extract extension of files in a folder
+sh
+sh
+sh
+sh
+sh
+
+
 awk '{print}' <file_name> ----> To print the contents of the file , its an alternative command for the cat
+awk '{print $2}'
+920K ./script/apache-tomcat-11.0.15/lib/tomcat-coyote.jar
+What awk does:
+Default delimiter = space
+$1 → 920K
+$2 → filename
 
 awk 'NR==2' <file_name> ----> it will display or cut the 2nd row
 awk 'NR==2 || NR==3' <file_name> ---> it will display the 2nd and 3rd row
@@ -666,6 +708,14 @@ ping www.google.com
 ps -ef -----> To list all the running process (sshd,systemd,cron)  (e- show Every process running on the system, f-show Full-format listing (detailed output))
 ps -u <user_name> ----> it will show you all the process started by an user
 ps -c  --> It show major running process
+
+ps -u root | wc -l    --> Count number of running processes by a given user
+ps -u root,ec2-user | wc -l
+
+ps -eo pid,%cpu --sort=-%cpu | head -6   --> Top 5 CPU Consuming Processes
+
+o- custom out
+- high to low
 
 
 PID ---> Process ID
