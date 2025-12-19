@@ -147,6 +147,8 @@ find / -user username              # Find files owned by a user
 find / -size 10k                   # Find files of exactly 10 KB
 find / -size -10k                  # Find files smaller than 10 KB
 find / -size +10k                  # Find files larger than 10 KB
+find / -type f -name "*.zip" -mtime -1    # Find .zip files modified in last 1 day
+find / -type f -name "*.tar" -mtime -1     # find / -type f -name "*.tar" -mtime -1
 find . -type f                     # Find regular files (recursive)
 find . -type d                     # Find directories (recursive)
 find . -type f -name "*.c"         # Find all .c files
@@ -1110,6 +1112,10 @@ top ----> To check all the running process,memory and cpu etc.
 | 48   | `sudo reboot`             | Restart server             |
 | 49   | `telnet localhost 8080`   | Test port connectivity     |
 | 50   | `chsh -s /bin/bash`       | Change login shell         |
+| 51   | mpstat                    | To find CPU usage only     |
+
+Total CPU usage = 100 − %idle
+Total CPU usage = 100 − 99.90 = 0.10%
 
 
 sudo iptables -A INPUT -s 192.168.1.100 -j DROP    # Block IP address
