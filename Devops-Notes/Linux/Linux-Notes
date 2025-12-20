@@ -170,6 +170,12 @@ find . -maxdepth 1 -type f -name "*.c.txt" | rename '.c' '.txt' *.c    --> To re
 
 
 find . -type f -name "*.log" -delete  # Find and delete .log files
+
+find . -maxdepth 1 -type f -name s1.sh | du -sh  --> Below the reason not to using this command
+du does NOT read filenames from stdin
+It ignores the output of find
+It defaults to measuring . (current directory)
+
 find . -type f -exec du -sh {} +    # Find the files with sizes
 find . -type f -exec du -sh {} \;
 
