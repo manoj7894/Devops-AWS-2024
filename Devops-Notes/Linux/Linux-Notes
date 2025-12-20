@@ -394,6 +394,7 @@ sed -i  '1s/<old_word>/<new_word>/ig' ----> it will apply the changes on the fir
 sed -i  '1,3s/<old_word>/<new_word>/ig' ----> it will apply the changes from 1st to 3rd line
 sed -i  '2,$s/<old_word>/<new_word>/ig' ----> it will apply the changes from 2nd end of the file line
 sed -i  '2s/<old_word>/<new_word>/ig; 5s/<old_word>/<new_word>/ig' ----> it will apply the changes on 2nd and 5th line
+sed 's/[A-Za-z]//g'   --> It will give only number if number should be like this 256Mb
 
 sed -i '2d' <file_name> ----> it will delete the 2nd line
 sed -i '2,$d' <file_name> ---> it will delete the lines from 2nd to end of the file
