@@ -1,0 +1,323 @@
+-> What is Shell Scripting
+Shell is executable file it containg mulitple commands that are executed sequently.
+
+-> Types of shells (cat /etc/shells)
+c shell
+z shell
+k shell
+bash shell
+
+echo $SHELL  --> To see the current shell
+echo "$0"
+which bash   --> To see the path of the shell
+chsh -s /usr/bin/ksh  --> To change into the shell
+
+Shebang
+The first line of the script start with shebang
+     #!/bin/bash
+it invokes the bash shell and if it is not used in the shell script, the default shell will be used
+Note: Script will also execute without shebang
+
+To execute any shell script
+1. sh <script.sh>
+2. bash <script.sh>
+3. ./ <script.sh>
+
+To execute the script via ./ method, the owner should have the execute permission
+If we forgot to pass the arguments, it will print as a empty at the variable place
+chmod u+x <script.sh>
+
+Variable
+A variable is a character string to which we assign the value
+The name of variable can contain only letters number and underscore(_)
+To access any created variable, we have use $ symbol followed by the variable name
+To pass the arguments/values to the script during the run time we can use $1, $2
+
+Special variables
+
+$0  ----> Gives the name of the script, that we are working
+$#  ----> Gives the number of arguments passed to the script
+$*  ----> Gives all the arguments passed to the script as a single string and store the arguments
+          ./test.sh one two three
+          Output:
+          one two three
+$@  ----> Gives all the arguments passed to the script as a separate item (array-like)
+          ./test.sh one two three
+          output:
+          one
+          two
+          three
+
+$$  ----> It give current shell PID
+$!  ----> It give the last process PID which went into background
+$?  ----> It give the current status of last command
+
+Example command status codes
+| Exit Code | Meaning                          |
+| --------- | -------------------------------- |
+| `0`       | Success                          |
+| `1`       | General error                    |
+| `2`       | Incorrect usage                  |
+| `126`     | Command found but not executable |
+| `127`     | Command not found                |
+| `130`     | Script terminated (Ctrl+C)       |
+
+set -x ----> it helps us to debug the code ( Prints all the commands and their arguments being executed)
+set +x  ----> This is used to stop the debugging mode on particular location/line in the script
+set -e ----> To stop the script immediately when the command exits with non-zero status
+
+
+ps -c ---> It is used to check the major running process on the server
+ex:
+sleep 30 &
+echo $!
+--------------------------------------------------------------------------------------------------------
+Arithmetic Operators ( +,-,*,/)
+
+syntax;
+sum=`expr $1 + $2`
+sub=`expr $1 - $2`
+prod=`expr $1 \* $2`
+div=`expr $1 / $2`
+
+Example1:
+#!/bin/bash
+echo "Enter the value for number1"
+read num1
+echo "Enter the value for number2"
+read num2
+
+sum=`expr $num1 + $num2`
+sub=`expr $num1 - $num2`
+prod=`expr $num1 \* $num2`
+div=`expr $num1 / $num2`
+
+echo "The sum of 2 no's is $sum"
+echo "The sub of 2 no's is $sub"
+echo "The prod of 2 no's is $prod"
+echo "The div of 2 no's is $div"
+
+or
+
+#!/bin/bash
+echo "Enter the value for number1"
+read num1
+echo "Enter the value for number2"
+read num2
+
+sum=$(($num1 + $num2))
+sub=$(($num1 - $num2))
+prod=$(($num1 * $num2))
+div=$(($num1 / $num2))
+
+echo "The sum of 2 no's is $sum"
+echo "The sub of 2 no's is $sub"
+echo "The prod of 2 no's is $prod"
+echo "The div of 2 no's is $div"
+----------------------------------------------------------------------------------------------------------------
+Relational Operators -----> These are used to compare the values
+----------------------------------------------------------------------------------------------------------------
+string ----------> The below operators should be used when we are comparing the strigs
+==  ----> equal
+!=  ----> not equal
+<   ----> lesser than
+<=  ----> lesser than or equals
+>   ----> greater than
+>=  ----> greater than or equal
+
+Number -------> The below operators should be used when we are comparing the numbers
+-eq  ----> equal
+-ne  ----> not equal
+-lt   ----> lesser than
+-le  ----> lesser than or equals
+-gt   ----> greater than
+-ge  ----> greater than or equal
+------------------------------------------------------------------------------------------------------------
+File Operators
+
+This can be used check for both files and directories in current working directory
+
+[ -f $name ] ----> To check if it is a file
+[ -d $name ] ----> To check if it is a directory
+[ -r $name ] ----> To check if the file/dir has got the read permission
+[ -w $name ] ----> To check if the file/dir has got the write permission
+[ -x $name ] ----> To check if the file/dir has got the execute permission
+[ -s $name ] ----> Checks if file/dir exists and is not empty
+[ -e $name ] ----> Checks if both file or directory exists	
+
+Note: The script always checks only for the owner not for the group and others
+----------------------------------------------------------------------------------------------------------
+Normal Scripts
+-> Example1:- Install packages and status
+
+#!/bin/bash
+set -x
+sudo yum install docker -y
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo systemctl status docker
+
+sudo yum install cornie -y
+sudo systemctl start crond
+sudo systemctl enable crond
+sudo systemctl status crond
+
+
+-> Example2:- Pass the arguments
+
+#!/bin/bash
+set -x
+echo "pass the Arguments using $1 and $2"
+echo "This is $1, I am from $2"
+
+
+#!/bin/bash
+set -x
+echo "pass the Arguments using $1 and $2"
+name=$1
+place=$2
+echo "This is $name, I am from $place"
+
+
+#!/bin/bash
+set -x
+echo "pass the Arguments using read"
+echo "Enter the name"
+read name
+echo "Enter the place"
+read place
+echo "This is $name, I am from $place"
+
+
+#!/bin/bash
+set -x
+echo "Print the varible using arguments $1 and $2"
+echo "$0"
+echo "$#"
+echo "$*"
+echo "$@"
+echo "$$"
+echo "$!"
+echo "$?"
+
+Note: If we miss any arguments to the command it will print like empty space
+-----------------------------------------------------------------------------------------------------------------------
+# Arithmetic and relational scripts
+-> Example1:
+
+#!/bin/bash
+set -x
+echo "print the Arithmetic values"
+echo "Enter Number One"
+read n1
+echo "Enter Number Two"
+read n2
+
+sum=$((n1 + n2))
+sub=$((n1 - n2))
+multi=$((n1 * n2))
+div=$((n1 / n2))
+echo $sum
+echo $sub
+echo $multi
+echo $div
+
+
+-> Example2: Check the entered number is 5 or not
+
+#!/bin/bash
+set -x
+echo "Enter the Number"
+read n
+
+if [ $n -eq 5 ]; then
+  echo "Enter number is $n"
+else
+  echo "Enter number is not $n"
+fi
+
+
+-> Example3: Check the Biggest Two Numbers
+
+#!/bin/bash
+set -x
+echo "Enter the Number One"
+read n1
+echo "Enter the Number Two"
+read n2
+
+if [ $n1 -gt $n2 ]; then
+  echo "Number one $n1 is Bigger"
+else
+  echo "Number two $n2 is Bigger"
+fi
+
+
+-> Example4: Check the Biggest Three Numbers
+
+#!/bin/bash
+set -x
+echo "Enter the Number One"
+read n1
+echo "Enter the Number Two"
+read n2
+echo "Enter the Number Three"
+read n3
+
+if [ $n1 -gt $n2 ] && [$n1 -gt $n2]; then
+  echo "Number one $n1 is Bigger"
+elif [ $n2 -gt $n3 ] && [ $n2 -gt $n1 ]; then
+  echo "Number two $n2 is Bigger"
+else
+  echo "Number three $n3 is Bigger"
+fi
+
+
+-> Example5: Find the file is exist or not 
+
+#!/bin/bash
+set -x
+echo "Enter the file name"
+read filename
+
+if [ -f $filename ]; then
+  echo "$filename is exist"
+else
+  echo "$filename is not exist"
+fi
+
+
+-> Example5: Find the file is exist or not and it has excute permission or not, if not give execute permission
+find . -maxdepth 1 -type f --name filename -perm 111 | sudo chmod 111 filename | ls -l
+
+#!/bin/bash
+set -x
+echo "Enter the file name"
+read filename
+
+if [ -f $filename ]; then
+  echo "$filename is exist"
+  if [ -x $filename ]; then
+    echo "$filename has excution permission"
+  else
+    echo "$filename has not excution permission, we have provide the permission"
+    sudo chmod +x $filename
+  fi
+else
+  echo "$filename is not exist"
+fi
+
+
+-> Example5: Find the file is exist or not in directory and it has excute permission or not, if not give execute permission and if it has display it
+#!/bin/bash
+set -x
+echo "Enter the file name"
+read filename
+  
+
+
+
+
+
+
+
