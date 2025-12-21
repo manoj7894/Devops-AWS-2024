@@ -828,10 +828,43 @@ uniq <file_name> ----> To display the uniq values in a file
 
 drawback with uniq command is , it will only remove the duplicate values, if they are adjecent to one anthor, to fix this issue we use sort and uniq commands together
 
-sort <file_name> ----> Sort the values
-sort -r <file_name> --> Reverse order
+sort <file_name> ----> Sort the values low to high
+sort -r <file_name> --> Reverse order high to low
 
 sort <file_name> | uniq
+
+If our input should be like this
+Input file
+
+10
+
+15
+15
+
+46
+54
+
+85
+then we should be below command to print without empty line
+sort filename | sed '/^$/d'
+
+| Part        | Meaning                                           |
+| ----------- | ------------------------------------------------- |
+| `sed`       | Stream EDitor (used to modify text)               |
+| `/pattern/` | Select lines matching a pattern                   |
+| `^`         | Start of the line                                 |
+| `$`         | End of the line                                   |
+| `^$`        | **An empty line** (nothing between start and end) |
+| `d`         | Delete the matched line                           |
+
+10
+15
+15
+46
+54
+85
+
+
 ----------------------------------------------------------------------------------------------------------------------------------------------------
 tee
 
