@@ -723,7 +723,11 @@ do
 done
 ---------------------------------------------------------------------------------------------------------------------
 # Case Statement scripts
--> Example1:
+-> Example1: write the script based on the input day
+monday ----> Today is monday
+tuesday ---> Today is tuesday
+wednesday ---> Today is wednesday
+any other input ---> invalid input
 
 #!/bin/bash
 echo "Enter the day"
@@ -739,6 +743,17 @@ wedensday) echo "Today is wedensday"
 *) echo "Invaild output"
 ;;
 esac
+
+
+-> Example2: Write the script to perform the menu based operations
+1. search/find for the files based on the given input
+2. check the if the file exist or not by the given name
+3. create the softlink for the file
+4. invalid input
+
+#!/bin/bash
+echo 
+
          
 
 
