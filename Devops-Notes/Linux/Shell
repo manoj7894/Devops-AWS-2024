@@ -71,6 +71,136 @@ ps -c ---> It is used to check the major running process on the server
 ex:
 sleep 30 &
 echo $!
+
+-> Loops in Shell Scripting
+We have two types of loops
+1) while loop
+2) for loop
+
+-> While loop
+while will execute the statement until condition become false
+While loop can also be used to read the file line by line (iterating the file)
+
+while [ condition ]
+do
+     statement
+done
+
+while [ condition ] ; do
+     statement
+done
+
+-> For loop
+It is used to execute the statement for the given range of values
+
+syntax:
+for i in var1 var2 var3
+do
+ statement
+done
+
+for i in { 0....10} ----> The variable values goes from 0 to 10
+1st iteration
+i = 0
+2nd iteration
+i = 1
+3rd iteration
+i = 2
+.
+.
+.
+at 12th iteration it will come out of the loop
+
+for i in {0...100..10}  ----> The variable varies will go from 0 to 100 with the increment of 10 [ i=10, i=20 ......]
+
+for i in $*  ----> variable will take all the arguments passes to the script
+
+sh script.sh 1 2 3 4 5
+for i in $*
+i=1
+i=2
+i=3
+i-4
+i=5
+
+
+
+
+--------------------------------------------------------------------------------------------------------------------
+Cronjob
+The cronjob is Linux command used for scheduling of tasks, to be executed sometime in future
+
+syntax:
+
+*   *    *    *      *   command
+min hour date Month day  sh script.sh
+
+0 ---> Sunday
+1 ---> monday
+2 ---> Tuesday
+3 ---> Wednesday
+4 ---> Thursday
+5 ---> Friday
+
+10am on every sunday  ----> 00 */10 * * 0 sh script.sh
+11am on every monday and friday --> 00 */11 * * 1,5 sh script.sh
+11am on every monday to friday --> 00 */11 * * 1-5 sh script.sh
+every 15min                    --> */15 * * * * sh script.sh
+every 1min                     --> * * * * * sh script.sh
+10pm on july 8th on monday     --> 00 22 08 07 01 sh script.sh 
+
+
+crontab ----> This is the file contains all the cronjob entries to be run at a specific time
+crontab -e ---> To edit or create the cronjobs
+crontab -l ----> To list all the existing cronjobs
+crontab -r ----> It is used to remove(delete) the current user all cronjobs from crontab file
+
+Note: Cronjobs are specific to particular user only 
+
+sudo yum install cronie
+sudo systemctl status crond
+sudo systemctl start crond
+sudo systemctl stop crond
+sudo susyemctl restart crond
+--------------------------------------------------------------------------------------------------------------------
+mailx
+
+sudo yum install mailx -y   # Amazon Linux
+sudo apt install mailutils -y  #ubuntu
+
+vi ~/.mailrc   --> Create the file
+
+set smtp-use-starttls
+set ssl-verify=ignore
+set smtp-auth=login
+set smtp=smtp://smtp.gmail.com:587
+set smtp-auth-user=🔴your-email@gmail.com
+set smtp-auth-password=🔴your-app-password
+set from="🔴your-email@gmail.com"
+
+IMPORTANT: You cannot use your normal Gmail password.
+You must generate an App Password. See next step.
+Make sure there is no space in App Password.
+
+3. Enable App Password in Gmail
+Steps:
+1. Go to: https://myaccount.google.com/apppasswords
+2. Login and generate an App Password for "Mail"
+3. It will show you a 16-character password — use this in the smtp-auth-password
+field in .mailrc
+This works only if 2-Step Verification is enabled on your Google account.
+
+4. Test sending a mail
+echo "This is a test from EC2" | mailx -s "Hello from EC2" your-gmailaddress@gmail.com
+
+
+syntax:
+echo "content" | mail  -s "subject" -c "cc" -b "bcc" <emaild_id>
+
+echo "the disk size is full" | mail -s "disk usage alert" -c "abc@gmail.com" -b "test@gmail.com,xyz@gmail.com" sstraining@gmail.com
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 --------------------------------------------------------------------------------------------------------
 Arithmetic Operators ( +,-,*,/)
 
@@ -203,6 +333,7 @@ echo "$?"
 Note: If we miss any arguments to the command it will print like empty space
 -----------------------------------------------------------------------------------------------------------------------
 # Arithmetic and relational scripts
+# If else scripts
 -> Example1:
 
 #!/bin/bash
@@ -308,12 +439,270 @@ else
 fi
 
 
--> Example5: Find the file is exist or not in directory and it has excute permission or not, if not give execute permission and if it has display it
+-> Example5: Find the file is exist or not in directory and it has excute permission or not, if not give execute permission and If it has data it should be display resever order
 #!/bin/bash
 set -x
+echo "Enter the Directory name"
+read "dirname"
 echo "Enter the file name"
 read filename
+
+if [ -d $dirname ]; then
+     echo "$dirname is exist"
+     cd $dirname
+     if [ -f $filename ]; then
+          echo "$filename is exist"
+          if [ -x $filename ]; then
+               echo "$filename has execution permission"
+          else
+               sudo chmod +x $filename
+          fi
+               while read line 
+               do
+                    echo $line
+               done < $filename 
+     else
+          echo "$filename is not exist"
+     fi
+else
+     echo "$dirname is not exist"
+fi
+
+-> Example6: Write the script to check if disksize is more than 25
+
+#!/bin/bash
+echo "Find the disk size"
+DISK=`df -h | sed -n '5p' | awk '{print $5}' | sed 1s/%//ig`
+
+if [ $DISK -ge 25 ]; then
+     echo "Disk is $DISK grater than 25"
+else
+     echo "Disk is $DISK less than 25"
+fi
+-----------------------------------------------------------------------------------------------------------------------
+#While loop
+
+-> Example7: Sum of n numbers
+
+#!/bin/bash
+set -x
+echo "Enter the number"
+read n
+sum=0
+i=1
+
+while [ $i -le $n ]
+do
+     sum=$((sum + i))
+     i=$((i + 1))
+done
+echo "Sum of numbers is $sum"
+
+
+#!/bin/bash
+set -x
+read n
+sum=0
+
+while [ $n -gt 0 ]
+do
+        sum=$(($sum + $n))
+        n=$((n - 1))
+done
+echo "Sum of n number is $sum"
+
+
+
+-> Example8: Factorial of n numbers
+
+#!/bin/bash
+set -x
+echo "Enter the number"
+read n
+fact=1
+i=1
+
+while [ $i -le $n ]
+do
+     fact=$((fact * i))
+     i=$((i + 1))
+done
+echo "Sum of factorical numbers is $fact"
+
   
+
+-> Example9: Sum of n even numbers
+
+#!/bin/bash
+set -x
+echo "Enter the even number"
+read n
+sum=0
+i=2
+
+while [ $i -le $n ]
+do
+     sum=$((sum + i))
+     i=$((i + 2))
+done
+echo "Sum of odd numbers is $sum"
+
+
+-> Example10: Sum of n odd numbers
+
+#!/bin/bash
+set -x
+echo "Enter the odd number"
+read n
+sum=0
+i=1
+
+while [ $i -le $n ]
+do
+     sum=$((sum + i))
+     i=$((i + 2))
+done
+echo "Sum of odd numbers is $sum"
+
+
+-> Example11: Read the file line by line
+
+#!/bin/bash
+echo "Read content in file"
+read filename
+
+while read line
+do
+     echo $line
+done < $filename
+
+
+-> Example12: Read the file line by line and count the character in file
+
+#!/bin/bash
+echo "Read content in file"
+read filename
+
+while read line
+do
+     echo $line | wc -c
+done < $filename
+
+
+-> Example13: Read the file line by line and count the character in file and out should be display like below
+1 : 28
+2 : 24
+
+#!/bin/bash
+echo "Read content in file"
+read filename
+l=1
+
+while read line
+do
+     number=`echo $line | wc -c`
+     l=$((l+1))
+     echo "$l: $number"
+     
+done < $filename
+
+
+-> Example14: Write the script to get the names with age more than 20 years
+
+no name age
+1 abc 15
+2 def 31
+3 xyz 30
+4 ret 20
+
+#!/bin/bash
+set -x
+echo "Enter filename"
+read filename
+sed '1d' $filename > tmp
+
+while read line
+do
+     age=`echo $line | awk '{print $3}'`
+     if [ age -ge 20 ]; then
+          echo $line | awk '{print $2}'
+     else
+          echo "All the age are below than 20"
+     fi
+done < tmp
+------------------------------------------------------------------------------------------------------------------------
+# For loop
+-> Example1: find the sum of all the numbers passed to the script
+1 2 3 4 5
+
+#!/bin/bash
+set -x
+sum=0
+
+for i in $*
+do
+     sum=$((sum + i))
+done
+echo "sum of the number is $sum"
+
+
+-> Example2: find the factorical of all the numbers passed to the script
+1 2 3 4 5
+
+#!/bin/bash
+set -x
+fact=1
+
+for i in $*
+do
+     fact=$((fact * i))
+done
+echo "sum of the factorical number is $fact"
+
+
+-> Example2: Find the factorial of a given set of numbers
+1 2 3 4 5
+output:
+Factorial of 1 is 1
+Factorial of 2 is 2
+Factorial of 3 is 6
+Factorial of 4 is 24
+Factorial of 5 is 120
+
+#!/bin/bash
+for i in $*
+do
+     fact=1
+     n=$i
+     while [ $n -gt 0 ]
+     do
+          fact=$((fact * n))
+          n=$((n - 1))
+     done
+     echo "Factorial of $i is $fact"
+done
+
+
+
+-> Example3: Write the script to check, if the particular service is down and if its down bring it up and alert us
+
+#!/bin/bash
+servicename="sshd crond"
+for i in $servicename
+do
+     output="sudo systemctl is-active $i"
+     if [ $output != active ]; then
+          sudo systemctl start $i
+          sudo systemctl enable $i
+          sudo systemctl status $i
+     else
+          echo "Services are in active status"
+     fi
+done
+         
+
+
+
 
 
 
