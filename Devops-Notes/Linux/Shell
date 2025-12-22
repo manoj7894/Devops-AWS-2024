@@ -690,8 +690,9 @@ done
 servicename="sshd crond"
 for i in $servicename
 do
-     output="sudo systemctl is-active $i"
+     output=`sudo systemctl is-active $i`
      if [ $output != active ]; then
+          echo "$i are in issue" | mailx -s "Alert on $i" varmapotthuri4@gmail.com
           sudo systemctl start $i
           sudo systemctl enable $i
           sudo systemctl status $i
@@ -699,6 +700,7 @@ do
           echo "Services are in active status"
      fi
 done
+
          
 
 
