@@ -198,10 +198,31 @@ syntax:
 echo "content" | mail  -s "subject" -c "cc" -b "bcc" <emaild_id>
 
 echo "the disk size is full" | mail -s "disk usage alert" -c "abc@gmail.com" -b "test@gmail.com,xyz@gmail.com" sstraining@gmail.com
+
+-> What is case statement
+A case statement is used to execute different blocks of code based on pattern matching
+
+-> Why use case statement?
+Easier to read
+Faster execution
+Best for menu-driven scripts
+Pattern matching support (*, |, ?)
+
+#!/bin/bash
+echo "enter the value for n"
+read n
+case $n in
+1) echo "entered number is 1"
+;;
+2) echo "entered number is 2"
+;;
+3) echo "entered number is 3"
+;;
+*) echo "invalid input"
+;;
+esac
 ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-
---------------------------------------------------------------------------------------------------------
 Arithmetic Operators ( +,-,*,/)
 
 syntax;
@@ -700,7 +721,24 @@ do
           echo "Services are in active status"
      fi
 done
+---------------------------------------------------------------------------------------------------------------------
+# Case Statement scripts
+-> Example1:
 
+#!/bin/bash
+echo "Enter the day"
+read day
+
+case $day in
+monday) echo "Today is monday"
+;;
+tuesday) echo "Today is tuesday"
+;;
+wedensday) echo "Today is wedensday"
+;;
+*) echo "Invaild output"
+;;
+esac
          
 
 
