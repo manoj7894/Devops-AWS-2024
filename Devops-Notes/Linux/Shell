@@ -752,7 +752,36 @@ esac
 4. invalid input
 
 #!/bin/bash
-echo 
+echo "perform the menu based operations"
+read n
+
+case $n in
+1) echo "Find the files"
+   read filename
+   find . -maxdepth 1 -type f -name $filename
+;;
+2) echo "Find the file"
+   read filename
+   if [ -f $filename ]; then
+     echo "$filename is exist"
+   else
+     echo "$filename is not exist"
+   fi
+;;
+3) echo "create soft link"
+   echo "Enter the file name"
+   read filename
+   filepath=$(realpath "$filename")
+   echo "Enter the soft link name"
+   read linkname
+   path="pwd"
+   ln -s $filepath $linkname
+;;
+4) echo "invalid output"
+;;
+esac
+          
+
 
          
 
