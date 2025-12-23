@@ -290,10 +290,10 @@ grep 'pattern$' <file_name>            # Display lines ending with the pattern
 grep -v <pattern> <file_name>          # Display lines NOT containing the pattern
 grep -c <pattern> <file_name>          # Count number of matching lines
 grep -i <pattern> <file_name>          # Case-insensitive search
-grep -n <pattern> <file_name>          # Show line numbers with matching lines
+grep -n <pattern> <file_name>          # Show line number with matching line
 grep -r <pattern> <directory>          # Recursive search inside directory
-grep -l <pattern> <file_name>          # Show only file names that match
-grep -o <pattern> <file_name>          # Print only the matched pattern
+grep -l <pattern> <file_name>          # -l → list filenames only (Shows only the file name if the pattern is found)
+grep -o <pattern> <file_name>          # Print only the matched pattern without lines
 grep -E "pat1|pat2" <file_name>         # Extended regex (OR condition)
 -------------------------------------------------------------------------------------------------------------------------------
 To open / view files in Linux 
@@ -526,6 +526,8 @@ sudo chage username                   # Modify password aging interactively
 # Group Management
 sudo groupadd groupname               # Create group
 sudo groupdel groupname               # Delete group
+sudo gpasswd groupname                # set password to group
+sudo gpasswd -r groupname             # Delete the password to group
 sudo groupmod -n newname oldname      # Rename group
 sudo groupmod -g gid groupname        # Change group ID (GID)
 
