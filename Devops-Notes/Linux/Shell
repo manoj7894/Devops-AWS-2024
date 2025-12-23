@@ -500,6 +500,37 @@ if [ $DISK -ge 25 ]; then
 else
      echo "Disk is $DISK less than 25"
 fi
+
+-> Example6: Write the script to check if cpu is more than 75
+
+#!/bin/bash
+echo "Check the cpu usage"
+idle=`mpstat | sed -n "4p" | awk '{print $NF}' | cut -d "." -f1`
+total=100
+current_usage=$(($total - $idle))
+
+if [ $current_usage -gt 75 ]; then
+     echo "CPU is $current_usage is more than 75"
+else 
+     echo "CPU is $current_usage is below 75"
+fi
+
+-> Another way
+#!/bin/bash
+set -x
+echo "print the current CPU usage"
+total=100
+target=75
+percentage=`mpstat | awk 'NR == 4' | awk -F " " '{print$NF}' | awk -F "." '{print$(NF-1)}'`
+Total=$(($total - $percentage))
+
+if [ $Total -ge $target ]; then
+        echo "CPU More than $target"
+else
+        echo "CPU less than $target"
+fi
+
+
 -----------------------------------------------------------------------------------------------------------------------
 #While loop
 
