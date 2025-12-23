@@ -1235,6 +1235,12 @@ top ----> To check all the running process,memory and cpu etc.
 Total CPU usage = 100 − %idle
 Total CPU usage = 100 − 99.90 = 0.10%
 
+tar -cvf file.tar file.txt    --> Create a .tar archive (No compression)
+Creates file.tar
+filename file.txt
+tar -cvzf file.tar.gz file.txt   --> Create a .tar archive and compression
+tar -cvzf file.tar.gz source_directory/
+tar -xvf backup.tar -C /home/ec2-user/destination/ --> Extract archive to specific directory
 
 sudo iptables -A INPUT -s 192.168.1.100 -j DROP    # Block IP address
 sudo iptables -D INPUT -s 192.168.1.100 -j DROP    # Remove block rule
