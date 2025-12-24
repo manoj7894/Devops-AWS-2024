@@ -1096,6 +1096,8 @@ yum history undo 15 --> Example
 
 # Rollback a SERVICE restart
 systemctl restart tomcat
+
+sudo yum remove git   --> To remove the package
 ------------------------------------------------------------------------------------------------------------------------
 # How to check the inode usage and inode issues in linux
 In Linux, inode issues happen when the system runs out of inodes, not disk space.
