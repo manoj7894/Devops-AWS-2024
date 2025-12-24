@@ -123,7 +123,7 @@ spec:
 
 
 -> File beat --> It will collect the logs
--> We have three container are running inside container 
+-> We have three container are running inside pod
 -> First one we call it primay container
 -> Second container we call it sidecar container. It will run as long as primary container running. where we install filebeat to get the logs
 -> Third one we call it init container   --> It will start and complete the task before start primary container then it will exit or remove from the pod 
