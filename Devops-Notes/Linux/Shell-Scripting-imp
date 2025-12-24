@@ -1,0 +1,401 @@
+1. Find Duplicate Files in Directory
+#!/bin/bash
+set -x
+echo "Enter the directory name"
+read dirname
+
+if [ -d $dirname ]; then
+  echo "$dirname is exist"
+  cd $dirname
+  find . -maxdepth 1 -type f -empty
+  echo "find the deplicate files"
+else
+  echo "$dirname is not exist"
+fi
+
+
+2. Check and Restart Services
+#!/bin/bash
+set -x
+echo "Check and restart the services"
+services="crond sshd"
+
+for i in $services
+do
+  status=`sudo systemctl is-active $i`
+  if [ $status != active ]; then
+    echo "Restart the services"
+    sudo systemctl restart $i
+  else
+    echo "$i service in active status"
+  fi
+done
+
+
+3. Archive Files Modified in Last 24 Hours
+#!/bin/bash
+echo "Find the files"
+find / -type f -mtime -1 | tar -cvf backup.tar *
+echo "Archive Files Modified in Last 24 Hours"
+
+
+4. Backup Directory Excluding Certain Files
+#!/bin/bash
+set -x
+echo "Enter the Directory name"
+read dirname
+mkdir $dirname
+dirpath=$(realpath "$dirname")
+present=`pwd`
+
+rsync -av --exclude "*.c" $present/ $dirpath
+
+
+5. Delete Log Files Older Than 7 Days
+#!/bin/bash
+echo "Deleting log files older than 7 days"
+sudo find / -maxdepth 1 -type f "*.log" -mtime +7 -delete
+
+
+#!/bin/bash
+
+echo "Deleting log files older than 7 days"
+
+for file in "$@"
+do
+  echo "Checking: $file"
+
+  if find . -maxdepth 1 -type f -name "$file" -mtime +7  -delete | grep -q .
+  then
+    echo "Deleted: $file (older than 7 days)"
+  else
+    echo "Not deleted: $file (not older than 7 days or not found)"
+  fi
+done
+
+grep -q .
+Confirms that a file was actually found
+
+
+6. Compress 5 Largest Files
+#!/bin/bash
+echo "Compress 5 Largest Files"
+sudo find / -type f -exec du -sh {} + | head -5 | awk '{print $2}' | xargs gzip
+
+
+7. Top 5 CPU Consuming Processes
+#!/bin/bash
+echo "Top 5 CPU Consuming Processes with pids"
+ps -eo pid,%cpu --sort=-%cpu | head -6
+
+o- custom out
+- high to low
+
+
+8. Count how many users are currently logged in
+#!/bin/bash
+echo "Count how many users are currently logged in"
+who | wc -l
+
+
+9. Find number of files in a directory
+#!/bin/bash
+echo "Enter the directory name"
+read dirname
+
+if [ -d $dirname ]; then
+  echo "$dirname is exist"
+  cd $dirname
+  find . -maxdepth 1 -type f | wc -l
+else
+  echo "$dirname is not exist"
+fi
+
+
+
+#!/bin/bash
+echo "Enter the directory name"
+read dirname
+
+if [ -d $dirname ]; then
+  echo "$dirname is exist"
+  find $dirname -maxdepth 1 -type f | wc -l
+else
+  echo "$dirname is not exist"
+fi
+
+
+10. Monitor a log file in real-time for word "failed"
+#!/bin/bash
+echo "Monitor a log file in real-time for word failed"
+
+for i in $*
+do
+  grep -i failed $i | wc -l
+done
+
+
+#!/bin/bash
+echo "Monitor a log file in real-time for word failed"
+read $filename
+grep -i failed $filename | wc -l
+
+
+11. Display the names of files larger than 1MB in current directory
+#!/bin/bash
+echo "Display the names of files larger than 1MB in current directory"
+find . -maxdepth 1 -type f -size 1M | ls -l
+
+12. Check if a user exists on the system
+#!/bin/bash
+echo "Enter the username"
+read name
+sudo getent passwd | grep -i $name
+
+
+#!/bin/bash
+for i in $*
+do
+  sudo getent passwd | grep -i $i
+done
+
+
+13. Count number of running processes by a given user
+#!/bin/bash
+echo "Enter the username"
+read name
+ps -u $name
+
+#!/bin/bash
+for i in $*
+do
+  ps -u $i
+done
+
+
+14. Extract extension of files in a folder
+#!/bin/bash
+echo "Enter the directory name"
+read dirname
+
+if [ -d $dirname ]; then
+  echo "$dirname is exist"
+  cd $dirname
+  find . -maxdepth 1 -type f "*.tar" | tar -xvf *.tar
+  echo "Files sucessfully extracted"
+else
+  echo "$dirname is not exist"
+fi
+
+#!/bin/bash
+echo "Enter the directory name"
+read dirname
+find $dirname -maxdepth 1 -type f "*.tar" | tar -xvf *.tar
+
+
+15. Install the packages in server using for loop ( git maven and java)
+#!/bin/bash
+echo "Install the packages"
+packages="git docker"
+
+for i in $packages
+do
+  sudo yum install $i -y
+  sudo systemctl start $i
+  sudo systemctl enable $i
+  sudo systemctl status $i
+done
+echo "packages install sucessfully"
+
+
+16. Loop through directories and list number of files in each
+#!/bin/bash
+echo "Enter the directory name"
+read dirname
+
+for i in $dirname
+do
+  if [ -d $i ]; then
+    echo "$i is exist"
+    cd $i
+    find . -maxdepth 1 -type f | wc -l
+  else
+    echo "$i is not exist"
+  fi
+done
+
+
+17. Check for the open ports using loop
+#!/bin/bash
+echo "Check for ports"
+command="netstat"
+
+for i in $command
+do
+  $i -a
+done
+
+
+#!/bin/bash
+echo "Check port is in up or down"
+
+for i in $*
+do
+  if netstat -tulnp | grep $i
+  then
+    echo "$i is up"
+  else
+    echo "$i is down"
+  fi
+done
+
+
+18. want to restart application if port is not listing
+#!/bin/bash
+echo "Restart the application"
+SERVICE="jenkins"
+PORT="22"
+
+if netstat -tulnp | grep $PORT
+then
+  echo "$SERVICE is running on $PORT"
+else
+  echo "$SERVICE is not running on $PORT, Restart the Service"
+  sudo systemctl restart $SERVICE
+fi
+
+
+19. Write a script that pings a list of servers and logs whether each is UP or DOWN
+#!/bin/bash
+
+for i in $*
+do
+  if ping -c 1 $i > /dev/null 2>&1
+  then
+    echo "$i is up"
+  else
+    echo "$i is down"
+  fi
+done
+
+dev/null  --> This hides the normal ping output
+2>&1  --> Find the stranded error and sent to dev/null to hide the errors also
+
+
+
+20. Write a script to archive all files not accessed in the last 30 days.
+#!/bin/bash
+echo "find archive all files not accessed in the last 30 days."
+sudo find / -type f -name "*.tar" -mtime -30 | tar -cvf backup.tar *.tar
+
+
+21. Write a script to tail multiple logs at once (multi-tail).
+#!/bin/bash
+
+for i in "$@"
+do
+  echo "Monitoring $log"
+  tail -f "$i" &
+done
+
+
+#!/bin/bash
+
+if [ $# -lt 1 ]; then
+  echo "Usage: $0"
+  exit 1
+fi
+
+tail -f "$@"
+
+
+
+22.  Get all the users shell
+#!/bin/bash
+echo "Enter the username"
+sudo getent passwd | grep -v nologin | cut -d ":" -f1,6
+
+
+23. Current CPU usage is more than 75 or not
+#!/bin/bash
+echo "Print currnet cpu usage"
+IDLE=`mpstat | sed -n '4p' | awk '{print $NF}' | cut -d "." -f1`
+Overall="100"
+Current=$((Overall - IDLE))
+
+if [ $Current -gt 75 ]; then
+  echo "Current CPU usage is $Current is grater than 75"
+  echo "CPU" | mailx -s "CPU usage is $Current is grater than 75" varmapotthuri4@gmail.com
+else
+  echo "Current CPU usage is $Current is not grater than 75"
+fi
+
+24. Write the script to check if disksize is more than 25, if it cross should get alert notification
+#!/bin/bash
+echo "Check the disk size"
+DISK=`df -h | sed -n '5p' | awk '{print $5}' | sed '1s/%//ig'`
+
+if [ $DISK -gt 25 ]; then
+  echo "Disk Size is $DISK is more than 25"
+  echo "Disk" | mailx -s "Disk Size is $DISK is more than 25" varmapotthuri4@gmail.com
+else
+  echo "Disk Size is $DISK is not more than 25"
+fi
+
+
+25. Write the script to check if RAM usage is more than 500MB, if it cross should get alert notification
+#!/bin/bash
+echo "Check the RAM Usage"
+RAM=`free -h | sed -n '2p' | awk '{print $3}' | sed 's/[A-za-a]//ig'`
+
+if [ $RAM -gt 500 ]; then
+  echo "RAM Usage is $RAM MB is more than 500MB"
+  echo "RAM" | mailx -s "RAM Usage is $RAM MB is more than 25" varmapotthuri4@gmail.com
+else
+  echo "RAM Usage is $RAM MB is not more than 500MB"
+fi
+
+
+26. Should get alert notification when changes occur in /etc/passwd path
+
+
+
+
+
+27. Create a menu-driven script to:
+---> List all .sh files
+---> Make them executable
+---> Run a selected one
+
+#!/bin/bash
+echo "Enter the number"
+read n
+
+case i in
+1) sudo find / -type -name "*.sh" | ls -l
+   echo "Find the all .sh extension files"
+;;
+2) sudo find / -type -name "*.sh" | ls -l | sudo chmod +x *.sh
+   echo "Give the execute permission"
+;;
+3) echo "Enter the file name" 
+   read filename
+   if [ -f $filename ]; then
+      echo "$filename is exist"
+      sh $filename
+   else
+      echo "$filename is not exist"
+   fi
+;;
+esac
+
+
+
+
+
+
+
+
+
+
+
