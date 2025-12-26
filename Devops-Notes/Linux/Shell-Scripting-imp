@@ -254,7 +254,7 @@ done
 #!/bin/bash
 echo "Restart the application"
 SERVICE="jenkins"
-PORT="22"
+PORT="8080"
 
 if netstat -tulnp | grep $PORT
 then
