@@ -110,7 +110,8 @@ Distributed VCS → "Everyone has a full brain!"
 -> git pull  --> It pull the data from remote repository to local repository
 -> git pull <repo Url> <branch name>  --> It pull the particular branch data from remote repo to local repo
 -> git clean -f <file>   --> To remove the file from untracked stage
-
+-> git show <commit id>  --> To get know how many files are modified under this single commit
+ 
 # Git revert and resert
 # revert
 -> It is used to undo changes introduce by specific commit while preserving the commit history
@@ -128,8 +129,9 @@ Note:- All Above revert commands will work same
 # reset
 -> It is used to move the HEAD ponit to specific commit, It modifies the commit history by adjusting the HEAD pointer.
 -> git reset <commit id>  --> All the above commit history will delete from pointed commit and changes move to working directory  [Git mixed resert]
--> git reset --soft <commit id>  --> All the above commit history will delete from pointed commit and changes move to stagging area
--> git reset --hard <commit id>  --> All the above commit history will delete from pointed commit and files will delete
+-> git reset --mixed <commit id>  --> It is used to move the files from staging area to workspace
+-> git reset --soft <commit id>  --> All the above commit history will delete from pointed commit and changes move to stagging area[It will remove the history and changes move to staging area]
+-> git reset --hard <commit id>  --> All the above commit history will delete from pointed commit and files will delete [It will remove entire the history means not be move changes anywhere]
 -> git reset HEAD~<number> 
         Ex:-
              git reset HEAD~1  --> It will take first commit in commit history because first HEAD it count from after HEAD
