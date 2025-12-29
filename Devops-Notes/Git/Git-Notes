@@ -78,6 +78,22 @@ Distributed VCS → "Everyone has a full brain!"
 -> git config --global user.email <write mail id> 
 -> git add .    --> Take files from untracked and modified staged to stagged stage [Untracked means newly created files][modify means if you do any change in file after commit then file it commes unstagged or modifyes staged]
 -> git commit -m "somename"  (or) git commit -m .   --> Take the staged files into local repo
+-> How to change the commit message
+    git commit --amend -m "message"
+    or
+    git commit --amend ----> It will take us to the VI editor, there we need to change the commit message
+
+-> Tags
+It is the name given to the set of versions or commits , so as to remember and it also indicates the milestone of the project
+
+git tag ----> To list the tags
+git tag <tag_name> <commit_id> ---> To provide the tag  to the commit_id
+git branch <branch_name> <tag_name> ----> To create the branch from the tag
+git tag -d <tag_name> -----> To delete the tag
+
+Note: we cannot edit the tags
+
+
 -> git remote[Manage the connection to remote repository such adding and remove remote]
 -> git remote add <name>  -->  To add the origin name
 -> git remote add origin <git hub url>  --> To add the git hub url to origin
@@ -85,6 +101,12 @@ Distributed VCS → "Everyone has a full brain!"
 -> git remote remove <name>  --> To remove the origin name
 -> git remote -v  --> To see list of remote
 -> git log  --> To see the commit history
+-> git log -n -----> To check the latest commits.
+    git log -1 ---> it displays the latest last one commit
+-> git log <file_name> ----> It gives the history of particular file
+    ex: git log f1
+-> git log -n <file_name> ----> last n commits of a particular file
+    ex: git log -1 f1
 -> git push --> push the data from local repo to remote repo
 -> git push -u origin branch name --> push the particular branch data from local repo to remote repo
 -> git branch  --> To see the git branches [It is used to maintain the spearate code base is called git branch]
@@ -105,13 +127,52 @@ Distributed VCS → "Everyone has a full brain!"
 -> git stash -u    --> It moved the file into untracked stage from git stash
 -> git stash branch <branch name>   --> if you want to create to separate branch with git stash files
 
--> git diff           --> View the difference between changes made to file
+# git diff 
+The git diff command shows differences between files in Git.
+It helps you see what changed, where, and before committing.
+-> git diff  --> See changes in working directory (not staged)
+-> git diff --staged  --> See staged changes (ready to commit)
+-> git diff commit1 commit2  --> Compare two commits
+-> git diff commit1 commit2 -- file.txt   --> Compare a file between commits
+-> git diff --name-only   --> Show only file names changed
+-> git diff --name-status  --> Show file status (added/modified/deleted)
+
+
 -> git clone  --> Download the remote repository on your local machine
 -> git pull  --> It pull the data from remote repository to local repository
 -> git pull <repo Url> <branch name>  --> It pull the particular branch data from remote repo to local repo
 -> git clean -f <file>   --> To remove the file from untracked stage
--> git show <commit id>  --> To get know how many files are modified under this single commit
- 
+-> git show <commit id>  --> To get know how many files are modified under this single commit and show entire details of commit
+-> git blame <commmit_iD>  --> git blame is used to find who last modified each line of a file (author + commit + time).
+-> git blame <file>  
+-> git blame app.js      --> Shows who last changed each line of app.js
+
+# Git bisect
+git bisect is a binary search tool in Git that helps you identify the exact commit where a bug was introduced by repeatedly testing commits and narrowing the range.
+
+| Task         | Command                   |
+| ------------ | ------------------------- |
+| Start bisect | `git bisect start`        |
+| Mark bad     | `git bisect bad`          |
+| Mark good    | `git bisect good <id>`    |
+| Auto test    | `git bisect run <script>` |
+| Exit         | `git bisect reset`        |
+
+
+# What is the difference between git diff vs git show
+
+| Command    | Purpose                 |
+| ---------- | ----------------------- |
+| `git diff` | Compare changes         |
+| `git show` | Show a commit’s details |
+
+
+-> bare repo  ----> acts as a remote/central repo, we can pull and push the code to this repo, cannot perform any git commands/operations here
+git init --bare
+
+-> non-bare repo ---> this is the local workspace/repo where we can edit the files and run all the git operations here
+git init
+
 # Git revert and resert
 # revert
 -> It is used to undo changes introduce by specific commit while preserving the commit history
@@ -155,6 +216,32 @@ git pull: Downloads updates from the remote repository and directly merges them 
 # What is the difference between FORk and CLONE
 -> FROK will create the copy of repository on remote server
 -> CLONE will download the remote repository in local
+
+1. How the change the commit message of particular commit ID
+-> git rebase -i  -> It take us in vi editor there we should write reword on the place of ping, after save then it will take us another vi editor there we can keep the name.
+2. How to combine the multiple commits
+-> git rebase -i  -> It take us in vi editor there we should write s on the place of ping, after save then it will take us another vi editor there we can keep the name.
+
+
+# Merge conflict:
+Merge conflict occurs when the same piece of code is modified in 2 branches and when we try to merge those 2 branches, merge conflict will occurs
+
+how should we resolve this?
+we should contact the developers, who modified the code in different branches, they will decide and inform us, whose changes need to be retained
+will take the changes and proceed to merge
+
+To get the list of developers ----> git log
+
+ex: create f1 file in master branch and put the content in the file f1 add and commit it
+    create the one more branch called feature1 from master and edit the f1 file add and commit it
+    checkout to master branch
+    edit the same file f1 again with some change add it and commit it
+    use git merge command to merge feature1 to master ( git merge feature1)
+    we will face merge conflict now
+    cat f1  ---> shows the merge conflict
+    then we have to contact developers to resolve the merge conflict by retaining the change
+    vi f1 ---> edit and save the changes and then add it and commit it
+    Then merge would have completed successfully
 
 # What are the files and folders would be in .git folder
 .git will track our entire repository
