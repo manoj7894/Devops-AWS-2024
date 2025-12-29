@@ -111,6 +111,7 @@ Note: we cannot edit the tags
 -> git push -u origin branch name --> push the particular branch data from local repo to remote repo
 -> git branch  --> To see the git branches [It is used to maintain the spearate code base is called git branch]
 -> git branch <branch name>  --> To create the branch name
+-> git branch -d <branch name>  --> It will delete the branch name
 -> git checkout -b <branch name>  --> It create the new branch and checkout that branch
 -> git checkout <branch name>   --> To shift from one branch to another branch
 -> git merge <branch name>      --> [It merge the changes from one branch to another branch][It wont maintain the liner commit history]
@@ -219,6 +220,7 @@ git pull: Downloads updates from the remote repository and directly merges them 
 
 1. How the change the commit message of particular commit ID
 -> git rebase -i  -> It take us in vi editor there we should write reword on the place of ping, after save then it will take us another vi editor there we can keep the name.
+
 2. How to combine the multiple commits
 -> git rebase -i  -> It take us in vi editor there we should write s on the place of ping, after save then it will take us another vi editor there we can keep the name.
 
