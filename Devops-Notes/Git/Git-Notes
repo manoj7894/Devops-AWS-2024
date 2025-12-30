@@ -119,6 +119,17 @@ Note: we cannot edit the tags
       1) fast forward merge  --> we will merge without commit
       2) recursive       --> we will merge after commit
 -> git rebase <branch name>    --> [It merge the changes from one branch to another branch][It maintain the liner commit history]
+
+| Feature                | Merge     | Rebase            |
+| ---------------------- | --------- | ----------------- |
+| History                | Preserved | Rewritten         |
+| Merge commit           | Yes       | No                |
+| Safe for shared branch | Yes       | No                |
+| Clean history          | No        | Yes               |
+| Risk                   | Low       | High (if misused) |
+
+Use git merge on shared branches to preserve history, and use git rebase on local branches to maintain a clean commit history before merging.
+
 -> git stash   --> [it save the changes from local repo to tempory location to make working directory clean]
 -> git stash list  --> To see stash list
 -> git stash apply --> It will take lastet file from git stash. that file wont delete in git stash when we do git stash apply
