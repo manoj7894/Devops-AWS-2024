@@ -664,7 +664,7 @@ inode: Inode is an unique identification number given to a file, which points to
 ls -i <file_name/Hardlink_name>
 -------------------------------------------------------------------------------------------------------------------------------
 SSH ----> Secure Shell or secure socket shell, it is the network protocol that gives users/administrators to secure way to access the computer/server
-
+SSHD (Secure Shell Daemon) is the server-side service that listens for SSH connections.
 
 Protocol       Port
 SSH            22
