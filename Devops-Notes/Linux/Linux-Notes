@@ -547,6 +547,7 @@ sudo su -                             # Switch to root user
 whoami                                # Show current user
 who                                   # Show logged-in users
 last                                  # Login history
+history                               # Give all the commands
 
 
 To provide the user sudo permission, we need to add the user in the sudoers file
