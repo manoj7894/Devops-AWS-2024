@@ -641,3 +641,92 @@ A Freestyle Job is the basic, GUI-based job type in Jenkins.
 
 2️⃣ Pipeline Job
 A Pipeline Job uses code to define the CI/CD workflow written as a Jenkinsfile.
+
+
+# Learn the difference between monolithic and microservices
+In a monolithic architecture, Jenkins builds, tests, and deploys the entire application using a single pipeline. 
+In a microservices architecture, Jenkins manages multiple independent pipelines where each service is built, tested, and deployed separately, enabling faster releases and better scalability.
+
+| Feature            | Monolithic + Jenkins | Microservices + Jenkins |
+| ------------------ | -------------------- | ----------------------- |
+| Codebase           | Single repo          | Multiple repos          |
+| Jenkins pipelines  | One pipeline         | Multiple pipelines      |
+| Build time         | Slow                 | Fast                    |
+| Deployment         | Full app             | Per service             |
+| Failure impact     | Entire app           | Single service          |
+| Scalability        | Difficult            | Easy                    |
+| Jenkins complexity | Low                  | High                    |
+
+
+# Log path:
+sudo tail -f /var/log/jenkins/jenkins.log
+Common log locations:
+/var/log/jenkins/jenkins.log
+/var/log/syslog
+
+sudo journalctl -u jenkins -f  --> This is the first place to look if the UI isn’t loading.
+
+
+Plugins:
+
+Plugins help in increasing the capabilities of Jenkins.
+
+1. Monitoring --> To Monitor Jenkins Server
+2. Docker --> To integrate Docker with Jenkins
+3. K8S --> To integrate K8S with Jenkins
+4. Blueocean --> To visualize Jenkin Jobs
+5. Periodic backup --> To take Periodically backup of Jenkins serve
+6. Parameterized Plugins --> To pass inputs to Jenkins jobs
+7. Maven Plugin --> To work on Maven build tool in Jenkins
+8. Artifactory --> To integrate Jfrog with jenkins
+8. CVS - Source Code Management Plugins
+9. Pipeline: Stage View ----> To see the stages in the job
+10. Role-based Authorization Strategy ----> To limit the access to the user on the Project level
+
+
+
+Matrix based Security:
+
+Matrix Authorization allows configuring the permissions for each user individually
+
+Project based Security:
+
+Project-based Matrix authorization strategy is an extension to “Matrix-based security”, 
+where you can setup permissions to individual projects. This means that you can allow a specific user
+to access only certain projects.
+
+Role-based Authorization Strategy is a Jenkins plugin that allows administrators to assign specific permissions to users or groups based on defined roles. These roles can be scoped to:
+Global level (e.g., full admin access)
+Project or Job level (e.g., view or build access to specific pipelines)
+Folder level (e.g., permissions to manage jobs within a specific folder)
+
+Project level Access ---> Pattern should be like ( ^Folder-A(/.*)?$ ) ---> replace Folder-A with your Folder name
+| Field       | Value              |
+| ----------- | ------------------ |
+| Role to add | Folder_name        |
+| Pattern     | ^Folder-A(/.*)?$  |
+
+Job level Access -----> Pattern should be like ( ^Job1$ ) ------> replace Job1 with  your Job name
+| Field       | Value              |
+| ----------- | ------------------ |
+| Role to add | Job_name           |
+| Pattern     | ^Job1$             |
+
+
+# Matrix-Based Security
+-> Matrix controls users globally,  Works at JENKINS (GLOBAL) level
+	Permissions are applied to the entire Jenkins instance
+	Once granted, user can see ALL jobs & folders
+	Cannot restrict to specific job or folders
+
+
+# Project-Based Matrix Authorization
+-> Works at JOB (PROJECT) level,  Project Matrix controls users per job, and 
+	Permissions are set inside each job
+	Same user can have different permissions per job	
+
+# Role-Based Authorization Strategy
+-> Works at GLOBAL + FOLDER + JOB level
+-> Role-Based controls roles across Jenkins, folders, and jobs.
+	Permissions are assigned to roles, not users
+	Users are mapped to roles
