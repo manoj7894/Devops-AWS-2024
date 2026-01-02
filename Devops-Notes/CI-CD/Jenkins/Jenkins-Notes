@@ -598,7 +598,7 @@ ssh 'jenkins@172.31.1.150'
 
 # Jenkins details
 -> General
-	1) project parametrized  --> To get build job from different branches
+	1) project parametrized  --> To pass env varible before start the job
 	2) Restrict where this porject can run
 -> Source Code managenment
 	1) Git
@@ -730,3 +730,24 @@ Job level Access -----> Pattern should be like ( ^Job1$ ) ------> replace Job1 w
 -> Role-Based controls roles across Jenkins, folders, and jobs.
 	Permissions are assigned to roles, not users
 	Users are mapped to roles
+
+
+
+# To switch between java version if we have multiple java version
+-> sudo update-alternatives --config java    --> It will result as like below
+
+There are 3 choices for the alternative java (providing /usr/bin/java).
+
+  Selection    Path                                            Priority   Status
+------------------------------------------------------------
+* 0            /usr/lib/jvm/java-17-openjdk/bin/java            1711      auto mode
+  1            /usr/lib/jvm/java-8-openjdk/bin/java             1081      manual mode
+  2            /usr/lib/jvm/java-11-openjdk/bin/java            1111      manual mode
+
+Press <enter> to keep the current choice[*], or type selection number:
+
+
+-> sudo update-alternatives --set java /usr/lib/jvm/java-11-openjdk/bin/java
+
+
+
