@@ -139,6 +139,30 @@ Use CMD when you want a default command that can be easily overridden.
 Use ENTRYPOINT when you want a mandatory command that should always execute.
 Use both when you want a fixed command (ENTRYPOINT) with a default argument (CMD) that users can modify.
 
+#CMD Example
+FROM ubuntu
+CMD ["echo", "Hello from CMD"]
+
+-> docker run myimage   --> run the above image. Output give as like below
+   Hello from CMD
+
+Override CMD at runtime
+docker run myimage echo "Hi Varma"   --> Override  Output give as like below
+  Hi Varma
+
+#ENTRYPOINT
+FROM ubuntu
+ENTRYPOINT ["echo"]
+
+-> docker run myimage "Hello from ENTRYPOINT"    --> run the above image. Output give as like below
+    Hello from ENTRYPOINT
+
+Override it won't work
+docker run myimage ls
+
+
+
+
 
 # What would you do if a Docker container running an application suddenly stops or gets killed?
 ✅ Here's a Strong, Structured Answer You Can Give:
