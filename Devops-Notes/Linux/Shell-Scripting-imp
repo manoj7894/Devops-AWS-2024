@@ -80,7 +80,7 @@ Confirms that a file was actually found
 6. Compress 5 Largest Files
 #!/bin/bash
 echo "Compress 5 Largest Files"
-sudo find / -type f -exec du -sh {} + | head -5 | awk '{print $2}' | xargs gzip
+sudo find / -type f -exec du -sh {} + | sort -hr | head -5 | awk '{print $2}' | xargs gzip
 
 
 7. Top 5 CPU Consuming Processes
@@ -346,7 +346,7 @@ fi
 25. Write the script to check if RAM usage is more than 500MB, if it cross should get alert notification
 #!/bin/bash
 echo "Check the RAM Usage"
-RAM=`free -h | sed -n '2p' | awk '{print $3}' | sed 's/[A-za-a]//ig'`
+RAM=`free -h | sed -n '2p' | awk '{print $3}' | sed 's/[A-Za-z]//ig'`
 
 if [ $RAM -gt 500 ]; then
   echo "RAM Usage is $RAM MB is more than 500MB"
