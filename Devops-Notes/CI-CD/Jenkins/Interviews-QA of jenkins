@@ -1,3 +1,336 @@
+# What is jenkins
+-> Jenkins is an open-source automation tool written in Java. It is mainly used for
+  Continuous Integration (CI) and Continuous Delivery/Deployment (CD) — often referred to as CI/CD.
+ -> Jenkins will automate the all tasks related to building, testing, deploying and delivering the software
+
+-> sudo cat /var/lib/jenkins/secrets/initialAdminPassword  --> Will get the password from console using this path
+
+-> /var/lib/jenkins/  --> path of the jenkins backup 
+-> /var/lib/jenkins/workspace  --> path of the jenkins build history
+> vi /etc/sysconfig/jenkins [To see and change the port number of jenkins in Amazon linux server]
+-> vi /etc/default/jenkins  [To see and change the port number of jenkins in Ubuntu]
+-> vi /var/lib/jenkins/config.xml [if you forget the jenkins password you will go that file write false on true place]
+-> We should restart the server by using sudo systemctl restart jenkins
+-> vi /var/lib/jenkins/users/user.xml --> To see the user in our terminal.
+
+
+# To switch between java version if we have multiple java version
+-> sudo update-alternatives --config java    --> It will result as like below
+
+There are 3 choices for the alternative java (providing /usr/bin/java).
+
+  Selection    Path                                            Priority   Status
+------------------------------------------------------------
+* 0            /usr/lib/jvm/java-17-openjdk/bin/java            1711      auto mode
+  1            /usr/lib/jvm/java-8-openjdk/bin/java             1081      manual mode
+  2            /usr/lib/jvm/java-11-openjdk/bin/java            1111      manual mode
+
+Press <enter> to keep the current choice[*], or type selection number:
+
+-> sudo update-alternatives --set java /usr/lib/jvm/java-11-openjdk/bin/java
+
+
+# Log path:
+sudo tail -f /var/log/jenkins/jenkins.log
+Common log locations:
+/var/log/jenkins/jenkins.log
+/var/log/syslog
+
+sudo journalctl -u jenkins -f
+----> This is the first place to look if the UI isn’t loading.
+
+
+# What are the different ways to trigger jenkins pipelines ?
+We can trigger the pipeline in differnet ways
+  - Manual trigger
+
+  - Poll SCM: Jenkins checks your Git repo accrding cron job time. If there are new commits, it builds. If not, it skips.
+ 
+  - Build Triggers: Jenkins will build accrding cron job time even if there are no code changes.
+              
+  - Webhooks: Webhook will trigger the pipeline when specific even occur in github repo.
+          http://3.110.124.162:8080/github-webhook/
+
+
+# How to create master and slave configurion [To overcome loads of jobs on master]
+ what is master
+ where we create the jobs
+ Dispatch the build jobs to the slaves for execution
+
+ what is slave
+ where we execute the jobs
+ It hears the request from jenkins master
+ slave will build the jobs dispatched by master
+
+No. Of Executors = This number represents at a single point in time how many different jobs can run
+					in parallel
+
+
+# Security
+# Matrix-Based Security
+-> Matrix controls users globally,  Works at JENKINS (GLOBAL) level
+	Permissions are applied to the entire Jenkins instance
+	Once granted, user can see ALL jobs & folders
+	Cannot restrict to specific job or folders
+
+
+# Project-Based Matrix Authorization
+-> Works at JOB (PROJECT) level,  Project Matrix controls users per job, and 
+	Permissions are set inside each job
+	Same user can have different permissions per job	
+
+# Role-Based Authorization Strategy
+-> Works at GLOBAL + FOLDER + JOB level
+-> Role-Based controls roles across Jenkins, folders, and jobs.
+	Permissions are assigned to roles, not users
+	Users are mapped to roles
+
+
+# Mention some of the scripts that a DevOps engineer uses in day-to-day use cases
+- Service status check - every minute checks the status of the service, If it goes down send alert notification through mail and restart the server
+- monitor the disk space - every minute checks the filesystem which is consuming more and sends an email to DL
+- monitor RAM (memory) space - every minute checks the CPU and MEM consumption and sends an email to DL
+- Archive log files not accessed in the last 30 days
+- Monitor a log file in real-time for word "failed" and send an email notification to DL
+
+
+# How to secure Jenkins
+- Change the default port number 
+- Avoid giving Admin access to everyone
+- Enable role-based authorization and give users minimum or required permissions
+
+# How to monitor Jenkins in the UI level
+- Manage Jenkins – Status information – System Log 
+
+
+# Jenkins and tomcat server is up and running and all prerequisites installed. In Jenkins the node shows offline, how to debug node
+-> we need to check node SSH connection and authentication,
+-> Hostname – Private ID 
+-> Credential – username (server default user) and password - .pem key 
+-> Verify disk temp space if it is low
+
+
+# Jenkin UI is down and not accessible, how to debug
+- Check the server status, is it running or not if it running
+-  Check Jenkins service status – sudo systemctl status Jenkin
+- Application log /var/lib/Jenkins/logs/health-checker.log (disk space ..)
+- Default location of Jenkins log /var/log/jenkins/jenkins.log
+- Jenkins service log /var/lib/Jenkins/syslog
+- Real time log sudo journalctl -u jenkins -f
+
+
+# How to debug job in Jenkins 
+- Specific Job – Build - Console output
+
+
+# How to get admin access to Jenkins
+- Already if a person is admin can give admin access to other users,
+Manage Jenkins – Manage users – Assign permissions or add to admin role
+(Role based Authorization strategy)
+Or 
+Manage Jenkins – Security - Under Authorization - Enable Matrix-based security - Add your username – Checkmark Overall (Administer)
+- If you have not set yourself as admin,
+1. Manage Jenkins – Under Security - Security - Security Realm (Jenkins’ own user database) – 
+2. Manage Jenkins – Security – Authorization – Matrix-based Security – Add user – checkmark overall for the user
+
+
+# If you loose Jenkin level access completely, how do you access 
+Jenkin server – 
+sudo systemctl stop Jenkins
+sudo vi /var/lib/Jenkins/config.xml
+<useSecurity>false</useSecurity>
+Sudo systemctl start Jenkin
+Reload Jenkin’s URL allow you to login to Jenkins without login details
+
+
+# How to change the port number of jenkin
+- We have to stop the Jenkin service 
+sudo systemctl stop Jenkins
+-	We have to change the port number in the Jenkins default config 
+sudo vi /etc/default/jenkins 
+HTTP_PORT=8080 
+Change to: HTTP_PORT=8090
+-	We have to add override file (override file is used to change or extend service settings safely without touching the original service file)
+
+Create a directory to place override file 
+sudo mkdir -p /etc/systemd/system/jenkins.service.d 
+
+Create and paste below service details
+sudo vi /etc/systemd/system/jenkins.service.d/override.conf 
+[Service] 
+Environment="JENKINS_PORT=8090"
+
+-	Run the below systemd command that tells the system to re-read service configuration files.
+sudo systemctl daemon-reload
+
+-	Start Jenkin service
+sudo systemctl start jenkins
+
+
+# what is the difference between freestyle job and pipeline job in jenkins
+Freestyle Job
+-> A Freestyle Job is the basic, GUI-based job type in Jenkins.
+-> In Freestyle job we can able to select one agent only
+
+# Pipeline Job
+-> A Pipeline Job uses code to define the CI/CD workflow written as a Jenkinsfile.
+-> In Pipeline job we can able to select multiple agent only, For each job run on paricular agent.
+
+
+# What is Downtime in Jenkins?
+-> Downtime in Jenkins means the period when the Jenkins server is not available to users or cannot run jobs/builds.
+
+When does Jenkins downtime happen
+-> Jenkins service is stopped or restarted
+          sudo systemctl restart jenkins
+-> Jenkins is upgrading
+          Jenkins version upgrade
+          Plugin upgrades that require restart
+-> Server or OS reboot
+          EC2 reboot
+          VM restart
+          Power failure
+-> Port or configuration change
+          Changing Jenkins port
+          Modifying /etc/default/jenkins
+          JVM options change
+-> High load / crash
+          Out of memory (OOM)
+          Disk full
+          Too many jobs running
+-> Network issues
+          Firewall block
+          DNS issue
+          Load balancer problem
+
+
+# Types of Downtime
+-> Planned Downtime
+          Scheduled maintenance
+          Jenkins upgrade
+          Plugin updates
+          Expected and communicated
+
+-> Unplanned Downtime
+          Server crash
+          Disk full
+          JVM crash
+          Hardware/network failure
+          Unexpected
+
+
+# What if jenkins master server crash
+-> Jenkins UI becomes unavailable
+          You cannot access Jenkins dashboard
+          Job triggers stop
+-> Running builds are affected
+          Builds running on the master → ❌ fail immediately
+          Builds running on agents:
+          Usually stop because controller coordination is lost
+          Some tools may continue briefly but results are not recorded
+-> No new builds can start
+          Webhooks, cron jobs, manual triggers → ❌ won’t work
+
+
+Immediate Actions
+1. Check server status
+          systemctl status jenkins
+2. Check logs
+          journalctl -u jenkins -n 100
+          /var/log/jenkins/jenkins.log
+
+Common causes:
+Out of memory (OOM)
+Disk full
+Port conflict
+Plugin crash
+
+3. Restart Jenkins
+          systemctl restart jenkins
+
+4. Verify Jenkins Home
+          /var/lib/jenkins
+
+
+
+How Production Teams Prevent Jenkins Master Crash Impact
+-> Similar we should maintain one server resemble of master
+-> Use Jenkins Agents (Best Practice)
+          Never run builds on master
+          Master only schedules jobs
+
+-> Regular Backups
+          /var/lib/jenkins
+
+-> Use Persistent Storage
+-> Monitoring & Alerts
+-> High Availability (Advanced)
+
+
+Interview-Ready Answer
+
+If Jenkins master crashes, the Jenkins UI becomes unavailable, all scheduling stops, running jobs fail, and no new builds can start. Recovery depends on restoring the Jenkins controller and Jenkins home from backup. Best practice is to use agents, backups, and persistent storage to minimize impact.
+
+
+# What Happens If a Jenkins Slave / Agent Node Is Down?
+-> Jenkins master stays UP
+-> Jobs assigned to that slave fail or wait
+          Running jobs on that agent → ❌ fail
+          Queued jobs waiting for that agent → ⏸️ wait until node comes back
+-> Other agents continue working
+
+
+Immediate Actions to Recover Agent
+1. Check agent status
+          Manage Jenkins → Nodes → <agent-name>
+2. Check agent service (on slave)
+          systemctl status ssh
+
+Common Reasons for Agent Down
+          Server reboot or crash
+          Network issue
+          Disk full
+          Java not running
+          SSH key issue
+          Agent JVM killed (OOM)
+
+Best Practices to Minimize Impact
+-> Multiple agents with same labels
+          Jobs can run on any available agent
+-> Auto-reconnect agents
+          Enable Keep agent online
+          Use inbound agents
+
+Interview-Ready Answer
+
+If a Jenkins slave node goes down, the Jenkins master remains available. Jobs running on that agent fail, queued jobs wait, and other agents continue executing builds. Once the agent is restored or replaced, jobs resume normally.
+
+
+
+Plugins:
+
+Preinstalled plugins,
+- Git plugin (This plugin integrates Git with Jenkin)
+- Github plugin (This plugin integrates Github to Jenkin) 
+- SSH Credentials Plugin (Allows storage of SSH credentials in Jenkin)
+- Build Timeout (This plugin allows you to automatically terminate a build if it's taking too long)
+
+
+Plugins help in increasing the capabilities of Jenkins.
+
+1. Monitoring --> To Monitor Jenkins Server
+2. Docker --> To integrate Docker with Jenkins
+3. K8S --> To integrate K8S with Jenkins
+4. Blueocean --> To visualize Jenkin Jobs
+5. Periodic backup --> To take Periodically backup of Jenkins serve
+6. Parameterized Plugins --> To pass inputs to Jenkins jobs
+7. Maven Plugin --> To work on Maven build tool in Jenkins
+8. Artifactory --> To integrate Jfrog with jenkins
+8. CVS - Source Code Management Plugins
+9. Pipeline: Stage View ----> To see the stages in the job
+10. Role-based Authorization Strategy ----> To limit the access to the user on the Project level
+
+
 1) Can you explain the CICD process in your current project ? or Can you talk about any CICD process that you have implemented ?
 -> Sure! In my current project, I’ve implemented a full CI/CD pipeline using Jenkins Pipelines to automate the build, test, security scan, manual approval, and deployment workflows from source code to production.
 -> We use GitHub as our version control system and Amazon EKS (Elastic Kubernetes Service) as our deployment platform.  
@@ -84,15 +417,7 @@ Taking time to linking custom domains and automatic SSL provisioning
 we should ensured DNS records were correctly pointed or not
 
 
-2) What are the different ways to trigger jenkins pipelines ?
-We can trigger the pipeline in differnet ways
 
-  - Poll SCM: Jenkins checks your Git repo accrding cron job time. If there are new commits, it builds. If not, it skips.
-
-              
-  - Build Triggers: Jenkins will build accrding cron job time even if there are no code changes.
-              
-  - Webhooks: Webhook will trigger the pipeline when specific even occur in github repo.
 
 
 3) How to backup Jenkins ?
