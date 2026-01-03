@@ -635,12 +635,7 @@ Restart Jenkins:
 After uploading the plugin, Jenkins typically requires a restart to activate the plugin. You can restart Jenkins from the Manage Jenkins page by selecting Reload Configuration from Disk, or you may need to restart the Jenkins service depending on your setup.
 
 
-# what is the difference between freestyle job and pipeline job in jenkins
-1️⃣ Freestyle Job
-A Freestyle Job is the basic, GUI-based job type in Jenkins.
 
-2️⃣ Pipeline Job
-A Pipeline Job uses code to define the CI/CD workflow written as a Jenkinsfile.
 
 
 # Learn the difference between monolithic and microservices
@@ -668,6 +663,13 @@ sudo journalctl -u jenkins -f  --> This is the first place to look if the UI isn
 
 
 Plugins:
+
+Preinstalled plugins,
+- Git plugin (This plugin integrates Git with Jenkin)
+- Github plugin (This plugin integrates Github to Jenkin) 
+- SSH Credentials Plugin (Allows storage of SSH credentials in Jenkin)
+- Build Timeout (This plugin allows you to automatically terminate a build if it's taking too long)
+
 
 Plugins help in increasing the capabilities of Jenkins.
 
