@@ -572,6 +572,46 @@ Each issue helped us fine-tune the pipeline for better performance, security, an
 
 
 
+# Upstream Job (Triggering Job)
+An Upstream Job is a job that runs first and triggers another job when it completes.
+
+# Downstream Job (Triggered Job)
+A Downstream Job is a job that runs after another job is completed.
+
+
+Pipeline Syntax:
+Two types of syntax are used for defining your JenkinsFile.
+
+DECLARATIVE PIPELINE: 					
+1. New way of writing with simple groovy declaratives
+2. All code is defined inside pipeline block
+
+SCRIPTED PIPELINE:
+1. Old way / Traditional way of pipeline code with scripted groovy syntax
+2. Defined within a node block
+
+
+# Multi branch Pipeline
+A Multi-Branch Pipeline is a Jenkins job type that can automatically handle multiple branches of your source code repository without creating a separate job for each branch.
+Instead of manually creating a pipeline per branch, Jenkins automatically:
+
+Scans your repository for branches
+Creates temporary pipeline jobs for each branch it finds
+Runs builds according to a Jenkinsfile in that branch
+
+| Branch        | New commit? | Build triggered? |
+| ------------- | ----------- | ---------------- |
+| main          | yes         | ✅ Yes          |
+| develop       | no          | ❌ No           |
+| feature/login | no          | ❌ No           |
+
+
+Note:
+Multi-branch pipelines are event-driven by default: triggered on new commits or PRs
+Only the branch with new commits is built by default
+Jenkins does not blindly build all branches every time
+
+
 Using Sonarqube it will check code quality check and code coverage
 Code quality Check:- It find the is there any bugs, code smells and vulnerability in our source code written by developer
 Code Coverage:- It will find how much percentage of code is tested by running unit test cases
