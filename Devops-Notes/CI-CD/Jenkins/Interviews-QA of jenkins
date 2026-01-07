@@ -330,6 +330,29 @@ Plugins help in increasing the capabilities of Jenkins.
 9. Pipeline: Stage View ----> To see the stages in the job
 10. Role-based Authorization Strategy ----> To limit the access to the user on the Project level
 
+# how many slaves we need when we have 100 microservices?
+In real production, we use agents (slaves) are according sized by workload, not by service count.
+
+# Master is in good high capability then why we need slave?
+Even if Jenkins master has high capacity, we use slaves (agents) to ensure stability, scalability, security, and fault isolation. The master is designed for orchestration, while agents are meant to execute resource-intensive jobs.
+
+# Microservices Approach (Real Production Way)
+User Service
+Product Service
+Cart Service
+Order Service
+Payment Service
+Notification Service
+
+Each service:
+Has its own code
+Has its own database
+Is deployed independently
+
+# What is pipeline
+Parallel pipelines are used when independent tasks can run simultaneously to reduce total build and deployment time
+Parallel pipelines reduce total time by running tasks inside a stage concurrently, even though stages themselves execute sequentially.
+
 
 1) Can you explain the CICD process in your current project ? or Can you talk about any CICD process that you have implemented ?
 -> Sure! In my current project, I’ve implemented a full CI/CD pipeline using Jenkins Pipelines to automate the build, test, security scan, manual approval, and deployment workflows from source code to production.
