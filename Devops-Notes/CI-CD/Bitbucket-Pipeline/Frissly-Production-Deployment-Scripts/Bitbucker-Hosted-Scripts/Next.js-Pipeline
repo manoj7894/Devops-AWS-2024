@@ -1,0 +1,424 @@
+image: node:22
+
+options:
+  size: 4x   # Gives more RAM (important for Next.js build)
+
+pipelines:
+  branches:
+
+# ==================================================
+# DEV PIPELINE
+# ==================================================
+
+    dev:
+      - step:
+          name: Build, Test, Scan, and Push Docker Image to ECR (Uat)
+          deployment: Nextjs-Dev-Deployment
+          services:
+            - docker
+          caches:
+            - node
+          script:
+            # Install required dependencies
+            - apt-get update && apt-get install -y curl unzip awscli jq mutt
+            
+            # Enable Docker BuildKit
+            - export DOCKER_BUILDKIT=1
+
+
+            # Install Node.js dependencies, build, and run tests
+            - npm ci
+            - npm test --if-present
+            
+            # Configure AWS CLI with provided credentials
+            - aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+            - aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+            - aws configure set region "$AWS_REGION"
+
+            # Configure AWS CLI (Using AWS CLI directly instead of pipe)
+            - aws sts get-caller-identity
+
+            # Install Trivy for security scanning
+            - curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.39.0/trivy_0.39.0_Linux-64bit.deb -o trivy.deb
+            - dpkg -i trivy.deb
+
+            # Set custom Trivy cache directory to prevent "no space left on device" error
+            - export TRIVY_CACHE_DIR=/tmp/trivy-cache
+            - mkdir -p $TRIVY_CACHE_DIR
+
+            # Run Trivy filesystem scan for vulnerabilities in the project files
+            - trivy fs --cache-dir $TRIVY_CACHE_DIR --format table -o fs-report.html .
+
+            # ----------------------------
+            # Build Docker Image
+            # ----------------------------
+            - docker build --memory=6g --memory-swap=6g --build-arg NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_API_KEY --no-cache -t "$DOCKER_IMAGE_NAME" .
+
+            # Run Trivy image scan on the Docker image
+            - trivy image --cache-dir $TRIVY_CACHE_DIR --format table -o image.html "$DOCKER_IMAGE_NAME"
+
+            # ECR repo management
+            - |
+              export ECR_REPO_NAME=$(echo "$ECR_REPO_NAME" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]//g')
+              aws ecr describe-repositories --repository-names "$ECR_REPO_NAME" --region "$AWS_REGION" || \
+              aws ecr create-repository --repository-name "$ECR_REPO_NAME" --region "$AWS_REGION"
+
+            # Push to ECR
+            - aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+            - docker tag "$DOCKER_IMAGE_NAME:latest" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG"
+            - docker push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG"
+            
+            # Cleanup old images (keep only latest 3 by pushedAt timestamp)
+            - |
+              IMAGE_DETAILS=$(aws ecr describe-images \
+                --repository-name "$ECR_REPO_NAME" \
+                --region "$AWS_REGION" \
+                --query 'sort_by(imageDetails,& imagePushedAt)' \
+                --output json)
+
+              TOTAL=$(echo "$IMAGE_DETAILS" | jq length)
+              echo "Total images in repo: $TOTAL"
+
+              if [ "$TOTAL" -gt 3 ]; then
+                # Keep last 3 (newest), delete the rest
+                DELETE_IMAGES=$(echo "$IMAGE_DETAILS" | jq -r '.[0:-3] | .[] | {digest: .imageDigest, tag: .imageTags[0]}')
+
+                echo "Deleting old images..."
+                echo "$DELETE_IMAGES" | jq -c '.' | while read -r IMG; do
+                  DIGEST=$(echo "$IMG" | jq -r '.digest')
+                  TAG=$(echo "$IMG" | jq -r '.tag')
+
+                  if [ "$TAG" != "null" ]; then
+                    echo "Deleting tagged image: $TAG ($DIGEST)"
+                    aws ecr batch-delete-image \
+                      --repository-name "$ECR_REPO_NAME" \
+                      --region "$AWS_REGION" \
+                      --image-ids imageTag=$TAG imageDigest=$DIGEST || true
+                  else
+                    echo "Deleting untagged image: $DIGEST"
+                    aws ecr batch-delete-image \
+                      --repository-name "$ECR_REPO_NAME" \
+                      --region "$AWS_REGION" \
+                      --image-ids imageDigest=$DIGEST || true
+                  fi
+                done
+              else
+                echo "Nothing to delete. Only $TOTAL images present."
+              fi
+
+            # Prepare artifacts
+            - mkdir -p artifacts
+            - cp fs-report.html artifacts/
+            - cp image.html artifacts/
+            - tar -cvf artifacts.tar artifacts/
+
+          artifacts:
+            - artifacts/**
+
+      - step:
+          name: Send Deployment Email Notification with Reports
+          script:
+            # Install required dependencies
+            - apt-get update && apt-get install -y jq mutt
+            
+            # Send email using mutt
+            - |
+              SMTP_SERVER="$SMTP_SERVER"
+              SMTP_PORT="$SMTP_PORT"
+              SMTP_USER="$SMTP_USER"
+              SMTP_PASS="$SMTP_PASS"  # Use an App Password, not your actual Gmail password
+              TO_EMAIL="$TO_EMAIL"
+              FROM_EMAIL="$FROM_EMAIL"
+              SUBJECT="Dev Deployment Complete"
+              BODY="Hello Team,\n\nThe Dev deployment for branch 'Dev' has been successfully completed and is now live.\n\n Bitbucket Pipeline: https://bitbucket.org/workspace/repo/pipelines/\n\nAttached are the security scan reports.\n\nThank you for your support.\n\nBest Regards,\nThe DevOps Team."
+
+              # Send email with attachments
+              echo -e "$BODY" | mutt -s "$SUBJECT" \
+                -e "set from=\"$FROM_EMAIL\"" \
+                -e "set smtp_url=\"smtp://$SMTP_USER:$SMTP_PASS@$SMTP_SERVER:$SMTP_PORT/\"" \
+                -e "set smtp_pass=\"$SMTP_PASS\"" \
+                -e "set ssl_starttls=yes" \
+                -e "set ssl_force_tls=yes" \
+                -a "artifacts/fs-report.html" \
+                -a "artifacts/image.html" \
+                -- "$TO_EMAIL"
+
+            - echo "Dev deployment notification email sent to ${TO_EMAIL}"
+
+
+# ==================================================
+# UAT PIPELINE
+# ==================================================
+    uat:
+      - step:
+          name: Build, Test, Scan, and Push Docker Image to ECR (Uat)
+          deployment: Nextjs-Uat-Deployment
+          services:
+            - docker
+          caches:
+            - node
+          script:
+            # Install required dependencies
+            - apt-get update && apt-get install -y curl unzip awscli jq mutt
+
+            # Install Node.js dependencies, build, and run tests
+            - npm install
+            - npm run build --if-present
+            - npm test --if-present
+            
+            # Configure AWS CLI with provided credentials
+            - aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+            - aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+            - aws configure set region "$AWS_REGION"
+
+            # Configure AWS CLI (Using AWS CLI directly instead of pipe)
+            - aws sts get-caller-identity
+
+            # -------------------------------------------------
+            # Install Trivy (OFFICIAL & STABLE METHOD)
+            # -------------------------------------------------
+            - wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
+            - echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" \
+                | tee /etc/apt/sources.list.d/trivy.list
+            - apt-get update
+            - apt-get install -y trivy
+            - trivy --version
+
+            # Set custom Trivy cache directory to prevent "no space left on device" error
+            - export TRIVY_CACHE_DIR=/tmp/trivy-cache
+            - mkdir -p $TRIVY_CACHE_DIR
+
+            # Run Trivy filesystem scan for vulnerabilities in the project files
+            - trivy fs --cache-dir $TRIVY_CACHE_DIR --format table -o fs-report.html .
+
+            # Build Docker image for the project
+            - docker build --no-cache -t "$DOCKER_IMAGE_NAME" .
+
+            # Run Trivy image scan on the Docker image
+            - trivy image --cache-dir $TRIVY_CACHE_DIR --format table -o image.html "$DOCKER_IMAGE_NAME"
+
+            # ECR repo management
+            - |
+              export ECR_REPO_NAME=$(echo "$ECR_REPO_NAME" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]//g')
+              aws ecr describe-repositories --repository-names "$ECR_REPO_NAME" --region "$AWS_REGION" || \
+              aws ecr create-repository --repository-name "$ECR_REPO_NAME" --region "$AWS_REGION"
+
+            # Push to ECR
+            - aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+            - docker tag "$DOCKER_IMAGE_NAME:latest" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG"
+            - docker push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG"
+            
+            # Cleanup old images (keep only latest 3 by pushedAt timestamp)
+            - |
+              IMAGE_DETAILS=$(aws ecr describe-images \
+                --repository-name "$ECR_REPO_NAME" \
+                --region "$AWS_REGION" \
+                --query 'sort_by(imageDetails,& imagePushedAt)' \
+                --output json)
+
+              TOTAL=$(echo "$IMAGE_DETAILS" | jq length)
+              echo "Total images in repo: $TOTAL"
+
+              if [ "$TOTAL" -gt 3 ]; then
+                # Keep last 3 (newest), delete the rest
+                DELETE_IMAGES=$(echo "$IMAGE_DETAILS" | jq -r '.[0:-3] | .[] | {digest: .imageDigest, tag: .imageTags[0]}')
+
+                echo "Deleting old images..."
+                echo "$DELETE_IMAGES" | jq -c '.' | while read -r IMG; do
+                  DIGEST=$(echo "$IMG" | jq -r '.digest')
+                  TAG=$(echo "$IMG" | jq -r '.tag')
+
+                  if [ "$TAG" != "null" ]; then
+                    echo "Deleting tagged image: $TAG ($DIGEST)"
+                    aws ecr batch-delete-image \
+                      --repository-name "$ECR_REPO_NAME" \
+                      --region "$AWS_REGION" \
+                      --image-ids imageTag=$TAG imageDigest=$DIGEST || true
+                  else
+                    echo "Deleting untagged image: $DIGEST"
+                    aws ecr batch-delete-image \
+                      --repository-name "$ECR_REPO_NAME" \
+                      --region "$AWS_REGION" \
+                      --image-ids imageDigest=$DIGEST || true
+                  fi
+                done
+              else
+                echo "Nothing to delete. Only $TOTAL images present."
+              fi
+
+            # Prepare artifacts
+            - mkdir -p artifacts
+            - cp fs-report.html artifacts/
+            - cp image.html artifacts/
+            - tar -cvf artifacts.tar artifacts/
+
+          artifacts:
+            - artifacts/**
+
+      - step:
+          name: Send Deployment Email Notification with Reports
+          script:
+            # Install required dependencies
+            - apt-get update && apt-get install -y jq mutt
+            
+            # Send email using mutt
+            - |
+              SMTP_SERVER="$SMTP_SERVER"
+              SMTP_PORT="$SMTP_PORT"
+              SMTP_USER="$SMTP_USER"
+              SMTP_PASS="$SMTP_PASS"  # Use an App Password, not your actual Gmail password
+              TO_EMAIL="$TO_EMAIL"
+              FROM_EMAIL="$FROM_EMAIL"
+              SUBJECT="Uat Deployment Complete"
+              BODY="Hello Team,\n\nThe Uat deployment for branch 'uat' has been successfully completed and is now live.\n\n Bitbucket Pipeline: https://bitbucket.org/workspace/repo/pipelines/\n\nAttached are the security scan reports.\n\nThank you for your support.\n\nBest Regards,\nThe DevOps Team."
+
+              # Send email with attachments
+              echo -e "$BODY" | mutt -s "$SUBJECT" \
+                -e "set from=\"$FROM_EMAIL\"" \
+                -e "set smtp_url=\"smtp://$SMTP_USER:$SMTP_PASS@$SMTP_SERVER:$SMTP_PORT/\"" \
+                -e "set smtp_pass=\"$SMTP_PASS\"" \
+                -e "set ssl_starttls=yes" \
+                -e "set ssl_force_tls=yes" \
+                -a "artifacts/fs-report.html" \
+                -a "artifacts/image.html" \
+                -- "$TO_EMAIL"
+
+            - echo "Uat deployment notification email sent to ${TO_EMAIL}"
+
+
+
+# ==================================================
+# PRODUCTION PIPELINE
+# ==================================================
+    production:
+      # ------------------------------
+      # Build, Test, and Scan (Production)
+      # ------------------------------
+      - step:
+          name: Build, Test, and Scan Source-Code (Production)
+          deployment: Nextjs-Production-Test
+          services:
+            - docker
+          caches:
+            - node
+          script:
+            - |
+              echo "Environment variables loaded."
+              apt-get update && apt-get install -y curl unzip jq mutt
+
+              npm install
+              npm run build --if-present
+              npm test --if-present
+
+              curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.39.0/trivy_0.39.0_Linux-64bit.deb -o trivy.deb
+              dpkg -i trivy.deb
+
+              export TRIVY_CACHE_DIR=/tmp/trivy-cache
+              mkdir -p $TRIVY_CACHE_DIR
+
+              trivy fs --cache-dir $TRIVY_CACHE_DIR --format table -o fs-report.html .
+
+              docker build -t "$DOCKER_IMAGE_NAME" .
+
+              trivy image --cache-dir $TRIVY_CACHE_DIR --format table -o image.html "$DOCKER_IMAGE_NAME"
+              docker save -o image.tar "$DOCKER_IMAGE_NAME:latest"
+
+              mkdir -p artifacts
+              cp fs-report.html artifacts/
+              cp image.html artifacts/
+              mv image.tar artifacts/
+              tar -cvf artifacts.tar artifacts/
+
+              SMTP_SERVER="$SMTP_SERVER"
+              SMTP_PORT="587"
+              SMTP_USER="$SMTP_USER"
+              SMTP_PASS="$SMTP_PASS"
+              TO_EMAIL="$TO_EMAIL"
+              FROM_EMAIL="$FROM_EMAIL"
+              SUBJECT="Approval Required: Deploy to Production"
+              BODY="Hello Team,\n\nThe staging deployment for branch 'staging' is complete.\n\n Please approve the Production deployment:\n\n🔗 Bitbucket Pipeline: https://bitbucket.org/workspace/repo/pipelines/\n\nThank you for your prompt approval."
+
+              echo -e "$BODY" | mutt -s "$SUBJECT" \
+                -e "set from=\"$FROM_EMAIL\"" \
+                -e "set smtp_url=\"smtp://$SMTP_USER:$SMTP_PASS@$SMTP_SERVER:$SMTP_PORT/\"" \
+                -e "set smtp_pass=\"$SMTP_PASS\"" \
+                -e "set ssl_starttls=yes" \
+                -e "set ssl_force_tls=yes" \
+                -a "artifacts/fs-report.html" \
+                -a "artifacts/image.html" \
+                -- "$TO_EMAIL"
+
+              echo "Approval request for Stagging deployment sent to ${TO_EMAIL}"
+          artifacts:
+            - artifacts/*
+
+      # ------------------------------
+      # Approval for Production Deployment
+      # ------------------------------
+      - step:
+          name: Approval for Production Deployment
+          deployment: Production-Approval
+          trigger: manual
+          script:
+            - echo "Waiting for approval before deploying to Production..."
+            - echo "Please approve the deployment manually in Bitbucket Pipelines UI."
+
+      # ------------------------------
+      # Deploy for Production Deployment
+      # ------------------------------
+      - step:
+          name: Deploy to Production
+          deployment: Nextjs-Production-Deployment
+          services:
+            - docker
+          script:
+            - |
+              apt-get update && apt-get install -y mutt awscli
+
+              aws configure set aws_access_key_id "$AWS_ACCESS_KEY_ID"
+              aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
+              aws configure set region "$AWS_REGION"
+
+              export ECR_REPO_NAME=$(echo "$ECR_REPO_NAME" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9._-]//g')
+              echo "Final ECR Repository Name: '${ECR_REPO_NAME}'"
+
+              echo "Checking if ECR repository exists..."
+              if ! aws ecr describe-repositories --repository-names "$ECR_REPO_NAME" --region "$AWS_REGION" > /dev/null 2>&1; then
+                echo "Creating ECR repository: $ECR_REPO_NAME"
+                aws ecr create-repository --repository-name "$ECR_REPO_NAME" --region "$AWS_REGION"
+              else
+                echo "ECR repository already exists."
+              fi
+
+              aws ecr get-login-password --region "$AWS_REGION" | \
+                docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
+
+              docker load -i artifacts/image.tar
+
+              export IMAGE_TAG=$(echo "$IMAGE_TAG" | tr -d '[:space:]')
+              echo "Tagging Docker Image..."
+              docker tag "$DOCKER_IMAGE_NAME:latest" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG"
+
+              docker push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG"
+
+              docker system prune -af || true
+              docker volume prune -f
+
+              SMTP_SERVER="$SMTP_SERVER"
+              SMTP_PORT="$SMTP_PORT"
+              SMTP_USER="$SMTP_USER"
+              SMTP_PASS="$SMTP_PASS"
+              TO_EMAIL="$TO_EMAIL"
+              FROM_EMAIL="$FROM_EMAIL"
+              SUBJECT="Production Deployment Complete"
+              BODY="Hello Team,\n\nThe Production deployment for branch 'production' has been successfully completed and the Production deployment is now live.\n\n Bitbucket Pipeline: https://bitbucket.org/workspace/repo/pipelines/\n\nThank you for your support.\n\nBest Regards,\nThe DevOps Team."
+
+              echo -e "$BODY" | mutt -s "$SUBJECT" \
+                -e "set from=\"$FROM_EMAIL\"" \
+                -e "set smtp_url=\"smtp://$SMTP_USER:$SMTP_PASS@$SMTP_SERVER:$SMTP_PORT/\"" \
+                -e "set smtp_pass=\"$SMTP_PASS\"" \
+                -e "set ssl_starttls=yes" \
+                -e "set ssl_force_tls=yes" \
+                -- "$TO_EMAIL"
+
+              echo "Production deployment complete notification sent to ${TO_EMAIL}"
