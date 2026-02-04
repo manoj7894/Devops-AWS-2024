@@ -2,6 +2,12 @@ image: node:22
 
 options:
   size: 4x   # Gives more RAM (important for Next.js build)
+  docker: true
+
+definitions:
+  services:
+    docker:
+      memory: 8192   # 8GB for Docker daemon
 
 pipelines:
   branches:
@@ -14,10 +20,12 @@ pipelines:
       - step:
           name: Build, Test, Scan, and Push Docker Image to ECR (Uat)
           deployment: Nextjs-Dev-Deployment
+          size: 4x
           services:
             - docker
           caches:
             - node
+
           script:
             # Install required dependencies
             - apt-get update && apt-get install -y curl unzip awscli jq mutt
@@ -52,7 +60,8 @@ pipelines:
             # ----------------------------
             # Build Docker Image
             # ----------------------------
-            - docker build --memory=6g --memory-swap=6g --build-arg NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_API_KEY --no-cache -t "$DOCKER_IMAGE_NAME" .
+            - docker build --memory=6g --memory-swap=6g --build-arg NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_API_KEY --build-arg NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL --build-arg NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL --no-cache -t "$DOCKER_IMAGE_NAME" .
+
 
             # Run Trivy image scan on the Docker image
             - trivy image --cache-dir $TRIVY_CACHE_DIR --format table -o image.html "$DOCKER_IMAGE_NAME"
@@ -67,6 +76,31 @@ pipelines:
             - aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
             - docker tag "$DOCKER_IMAGE_NAME:latest" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG"
             - docker push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG"
+
+            # ==================================================
+            # Cleanup Docker & Build Cache (AFTER PUSH)
+            # ==================================================
+            - echo "Cleaning Docker & Build Cache..."
+
+            # Show disk before cleanup
+            - docker system df
+
+            # Remove all unused docker data
+            - docker system prune -af --volumes
+
+            # Remove BuildKit cache
+            - docker builder prune -af
+
+            # Clear npm cache
+            - npm cache clean --force
+
+            # Remove Trivy cache (if used)
+            - rm -rf /tmp/trivy-cache || true
+
+            # Show disk after cleanup
+            - docker system df
+
+            - echo "Cleanup completed successfully"
             
             # Cleanup old images (keep only latest 3 by pushedAt timestamp)
             - |
@@ -207,6 +241,31 @@ pipelines:
             - aws ecr get-login-password --region "$AWS_REGION" | docker login --username AWS --password-stdin "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com"
             - docker tag "$DOCKER_IMAGE_NAME:latest" "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG"
             - docker push "$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPO_NAME:$IMAGE_TAG"
+
+            # ==================================================
+            # Cleanup Docker & Build Cache (AFTER PUSH)
+            # ==================================================
+            - echo "Cleaning Docker & Build Cache..."
+
+            # Show disk before cleanup
+            - docker system df
+
+            # Remove all unused docker data
+            - docker system prune -af --volumes
+
+            # Remove BuildKit cache
+            - docker builder prune -af
+
+            # Clear npm cache
+            - npm cache clean --force
+
+            # Remove Trivy cache (if used)
+            - rm -rf /tmp/trivy-cache || true
+
+            # Show disk after cleanup
+            - docker system df
+
+            - echo "Cleanup completed successfully"
             
             # Cleanup old images (keep only latest 3 by pushedAt timestamp)
             - |
@@ -403,6 +462,11 @@ pipelines:
 
               docker system prune -af || true
               docker volume prune -f
+              docker system df
+              docker system prune -af --volumes
+              npm cache clean --force
+              rm -rf /tmp/trivy-cache || true
+              docker system df
 
               SMTP_SERVER="$SMTP_SERVER"
               SMTP_PORT="$SMTP_PORT"
