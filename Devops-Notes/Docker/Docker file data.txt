@@ -235,10 +235,11 @@ CMD ["npx", "react-native", "start"]
 # Stage 1: Dependencies
 # -----------------------------
 FROM node:20-alpine AS deps
+
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-COPY package.json package-lock.json* ./
+COPY package.json package-lock.json ./
 RUN npm ci
 
 
@@ -249,9 +250,21 @@ RUN npm ci
 FROM node:20-alpine AS builder
 WORKDIR /app
 
+# Build arguments
+ARG NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+
+# Environment variables
+ENV NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+ENV NEXT_TELEMETRY_DISABLED=1
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Clean cache to save memory
+RUN npm cache clean --force
+
+# Build Next.js
 RUN npm run build
 
 
@@ -269,5 +282,5 @@ COPY --from=builder /app ./
 
 EXPOSE 7000
 
-# FORCE HOST + PORT (this is what fixes health check)
 CMD ["npx", "next", "start", "-H", "0.0.0.0", "-p", "7000"]
+
