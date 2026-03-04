@@ -27,14 +27,20 @@ pipelines:
             - aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
             - aws configure set region "$AWS_REGION"
             - aws sts get-caller-identity
-            - curl -sfL
-              https://github.com/aquasecurity/trivy/releases/download/v0.39.0/trivy_0.39.0_Linux-64bit.deb
-              -o trivy.deb
-            - dpkg -i trivy.deb
+            # -------------------------------------------------
+            # Install Trivy (OFFICIAL & STABLE METHOD)
+            # -------------------------------------------------
+            - wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
+            - echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" \
+                | tee /etc/apt/sources.list.d/trivy.list
+            - apt-get update
+            - apt-get install -y trivy
+            - trivy --version
+
             - export TRIVY_CACHE_DIR=/tmp/trivy-cache
             - mkdir -p $TRIVY_CACHE_DIR
-            - trivy fs --cache-dir $TRIVY_CACHE_DIR --format table -o
-              fs-report.html .
+            # Run Trivy filesystem scan for vulnerabilities in the project files
+            - trivy fs --cache-dir $TRIVY_CACHE_DIR --format table -o fs-report.html .
             - docker build --memory=6g --memory-swap=6g --build-arg
               NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
               --build-arg NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
@@ -160,14 +166,21 @@ pipelines:
             - aws configure set aws_secret_access_key "$AWS_SECRET_ACCESS_KEY"
             - aws configure set region "$AWS_REGION"
             - aws sts get-caller-identity
-            - curl -sfL
-              https://github.com/aquasecurity/trivy/releases/download/v0.39.0/trivy_0.39.0_Linux-64bit.deb
-              -o trivy.deb
-            - dpkg -i trivy.deb
+            # -------------------------------------------------
+            # Install Trivy (OFFICIAL & STABLE METHOD)
+            # -------------------------------------------------
+            - wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
+            - echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" \
+                | tee /etc/apt/sources.list.d/trivy.list
+            - apt-get update
+            - apt-get install -y trivy
+            - trivy --version
+
             - export TRIVY_CACHE_DIR=/tmp/trivy-cache
             - mkdir -p $TRIVY_CACHE_DIR
-            - trivy fs --cache-dir $TRIVY_CACHE_DIR --format table -o
-              fs-report.html .
+
+            # Run Trivy filesystem scan for vulnerabilities in the project files
+            - trivy fs --cache-dir $TRIVY_CACHE_DIR --format table -o fs-report.html .
             - docker build --memory=6g --memory-swap=6g --build-arg
               NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=$NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
               --build-arg NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
@@ -303,17 +316,20 @@ pipelines:
               npm test --if-present
 
 
-              curl -sfL https://github.com/aquasecurity/trivy/releases/download/v0.39.0/trivy_0.39.0_Linux-64bit.deb -o trivy.deb
-
-              dpkg -i trivy.deb
+              wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add -
+              echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" \
+                | tee /etc/apt/sources.list.d/trivy.list
+              apt-get update
+              apt-get install -y trivy
+              trivy --version
 
 
               export TRIVY_CACHE_DIR=/tmp/trivy-cache
 
               mkdir -p $TRIVY_CACHE_DIR
 
-
-              trivy fs --cache-dir $TRIVY_CACHE_DIR --format table -o fs-report.html .
+              # Run Trivy filesystem scan for vulnerabilities in the project files
+              trivy fs --cache-dir $TRIVY_CACHE_DIR --format table -o fs-report.html .     
 
 
               # ----------------------------
