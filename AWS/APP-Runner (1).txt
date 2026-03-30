@@ -74,15 +74,22 @@ CPU-intensive processing (image processing, AI inference)	1s	2-5
 
 
 
-# To delete the VPC Connector, you must first detach it from the service. we have to execute below command in cmd to connect with aws account
--> aws apprunner update-service --cli-input-json "{ \"ServiceArn\": \"arn:aws:apprunner:ap-south-1:854575156536:service/onroute-uat-backend/c85ba28764d34117982f3c4df57b44e0\", \"NetworkConfiguration\": { \"EgressConfiguration\": { \"EgressType\": \"DEFAULT\" } } }"
+-> We should keep Egress Type default in terraform code as like below
+network_configuration {
+      egress_configuration {
+        egress_type       = "DEFAULT"
+        # vpc_connector_arn = aws_apprunner_vpc_connector.vpc_connector.arn
+      }
+    }
 
--> Wait for the service to finish updating — you can track this by running:
+-> We should apply terraform apply command
+-> To make sure egress type has changed or not
+-> aws apprunner describe-service `--service-arn arn:aws:apprunner:ap-south-1:311141536296:service/frissly-dev-backend/14efe8fb5e624f8fb9738b2549f58daa `--query "Service.NetworkConfiguration.EgressConfiguration"
+-> Should appear as like below
 
+{
+    "EgressType": "DEFAULT"
+}
 
--> aws apprunner delete-vpc-connector --vpc-connector-arn arn:aws:apprunner:ap-south-1:796973481585:vpcconnector/frissly-prod-vpc_connector/1/b04b646257b34985bf9639841e49eca2
-
-if it could not delete by above command you will manually
-
-
-
+-> To delete
+-> aws apprunner delete-vpc-connector `--vpc-connector-arn arn:aws:apprunner:ap-south-1:311141536296:vpcconnector/frissly-dev-vpc_connector/1/036bd24312614462a29bf2a27337c031
