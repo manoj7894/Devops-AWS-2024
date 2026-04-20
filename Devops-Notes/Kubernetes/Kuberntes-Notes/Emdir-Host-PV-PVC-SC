@@ -95,6 +95,22 @@ The volume can be mounted as read-write by a single pod only, even if there are 
 | `ReadWriteOncePod` | One Pod Only | ✅ Yes     | Leader election, strict isolation |
 
 
+can you we able to attach the one EBS volume to multiple pods
+If you want one EBS volume shared by multiple pods
+
+Normally: NO, because EBS supports only ReadWriteOnce (RWO)
+➡️ meaning the volume can be mounted by only one node at a time.
+
+So if your pods are running on different nodes, they cannot share the same EBS volume.
+
+✅ When it IS possible
+Case 1: Multiple pods on the SAME node
+
+If all pods are scheduled on one node, then they can mount the same EBS volume using RWO, because it’s still “one node”.
+
+✅ Possible
+⚠️ But Kubernetes may move pods to another node → then it will fail.
+
 
 
 | **Concept**         | **Option**             | **What It Means**                                                                  |
