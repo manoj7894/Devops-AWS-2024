@@ -436,7 +436,7 @@ sudo ./aws/install
 
 # ========== BACKUP CONFIGURATION ==========
 BACKUP_DIR="/home/ubuntu/mongodb_backup"
-MONGO_URI="mongodb+srv://organicplaceapp:ArthV3d!@uat-stg-cluster.ivpds.mongodb.net/frissly_stg?retryWrites=true&w=majority&appName=uat-stg-cluster"
+MONGO_URI="Date Base URL"
 S3_BUCKET="s3://frissly-prod-mongodb-backup-1"
 DATABASES=("frissly_stg")
 BACKUP_SCRIPT="/home/ubuntu/mongo_backup.sh"
