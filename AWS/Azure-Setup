@@ -1,0 +1,37 @@
+# Install AWS CLI using below link in windows
+https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?utm_source=chatgpt.com
+# Open the powershell execute the below commands
+winget install --exact --id Microsoft.AzureCLI
+winget install --exact --id Microsoft.AzureCLI --version 2.67.0
+az version
+az login
+az account show
+
+# Check your subscription   
+az account list --output table
+az account set --subscription "YOUR_SUBSCRIPTION_ID"
+
+# Get your subscription ID
+az account show --query id -o tsv
+
+
+# Check whether Azure CLI is installed in the default location:
+Test-Path "C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd"
+
+-> If it returns True, execute:
+& "C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin\az.cmd" version
+
+If this works, Azure CLI is installed correctly but PATH needs updating.
+You can temporarily update PATH in your current PowerShell session:
+
+$env:Path += ";C:\Program Files\Microsoft SDKs\Azure\CLI2\wbin"
+
+
+# Before Terraform creates resources, Azure needs the relevant resource providers registered in your subscription.
+az provider register --namespace Microsoft.App
+
+az provider register --namespace Microsoft.OperationalInsights
+
+az provider register --namespace Microsoft.ContainerRegistry
+
+az provider register --namespace Microsoft.ManagedIdentity
