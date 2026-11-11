@@ -1,0 +1,718 @@
+-> First We have to install AWS CLI before execute the script
+curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"
+aws --version
+
+-> mongo.sh
+
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+# ==========================================================
+# MONGODB BACKUP + CHANGE STREAM LISTENER INSTALLER
+# Ubuntu EC2
+# ==========================================================
+
+# ---------- CONFIGURATION ----------
+
+HOME_DIR="/home/ubuntu"
+BACKUP_DIR="/home/ubuntu/mongodb_backup"
+
+BACKUP_SCRIPT="/home/ubuntu/mongo_backup.sh"
+LISTENER_SCRIPT="/home/ubuntu/mongo_listener.js"
+
+ENV_FILE="/etc/mongo-listener.env"
+
+LISTENER_SERVICE="/etc/systemd/system/mongo-listener.service"
+BACKUP_SERVICE="/etc/systemd/system/mongo-backup.service"
+
+MONGO_DB="frissly_prod"
+S3_BUCKET="s3://frissly-prod-mongodb-backup-1"
+
+NODE_VERSION="22"
+MONGODB_DRIVER_VERSION="7.8.0"
+MONGO_TOOLS_VERSION="100.20.1"
+
+# One backup at most per 60-second change window
+BACKUP_DELAY_SECONDS="60"
+
+# ---------- PRE-CHECKS ----------
+
+if [[ "$EUID" -eq 0 ]]; then
+    echo "Run this script as ubuntu, not directly as root."
+    exit 1
+fi
+
+if [[ "$(whoami)" != "ubuntu" ]]; then
+    echo "This installer expects the ubuntu user."
+    exit 1
+fi
+
+sudo -n true || {
+    echo "Passwordless sudo is not working. Check sudoers configuration."
+    exit 1
+}
+
+echo "=========================================="
+echo " MongoDB Backup Installation"
+echo "=========================================="
+
+# ---------- STOP EXISTING SERVICES ----------
+
+echo "Stopping existing MongoDB listener..."
+
+sudo systemctl stop mongo-listener.service 2>/dev/null || true
+sudo systemctl stop mongo-backup.service 2>/dev/null || true
+
+# ---------- BACKUP EXISTING CONFIGURATION ----------
+
+STAMP=$(date +"%Y%m%d_%H%M%S")
+
+for FILE in "$BACKUP_SCRIPT" "$LISTENER_SCRIPT"; do
+    if [[ -f "$FILE" ]]; then
+        cp -a "$FILE" "$FILE.bak.$STAMP"
+        echo "Previous file backed up: $FILE"
+    fi
+done
+
+if sudo test -f "$ENV_FILE"; then
+    sudo cp -a "$ENV_FILE" "$ENV_FILE.bak.$STAMP"
+fi
+
+# ---------- REPAIR DPKG ----------
+
+echo "Repairing Ubuntu package manager..."
+
+sudo dpkg --configure -a || {
+    sudo apt-get --fix-broken install -y
+    sudo dpkg --configure -a
+}
+
+sudo apt-get update
+
+# ---------- INSTALL SYSTEM PACKAGES ----------
+
+echo "Installing required packages..."
+
+sudo apt-get install -y \
+    curl \
+    wget \
+    ca-certificates \
+    gnupg \
+    unzip \
+    jq \
+    net-tools \
+    util-linux
+
+# ---------- INSTALL NODE.JS 22 ----------
+
+echo "Installing Node.js 22..."
+
+curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x \
+    | sudo -E bash -
+
+sudo apt-get install -y nodejs
+
+NODE_ACTUAL=$(node -p 'process.versions.node')
+
+echo "Installed Node.js: $NODE_ACTUAL"
+
+node -e '
+const [major, minor, patch] = process.versions.node.split(".").map(Number);
+if (major < 20 || (major === 20 && minor < 19)) {
+    console.error("Node.js 20.19 or newer is required.");
+    process.exit(1);
+}
+'
+
+node -v
+npm -v
+
+# ---------- INSTALL MONGODB DATABASE TOOLS ----------
+
+echo "Installing MongoDB Database Tools..."
+
+source /etc/os-release
+
+UBUNTU_VERSION="${VERSION_ID//./}"
+
+case "$UBUNTU_VERSION" in
+    2404|2204|2004)
+        ;;
+    *)
+        echo "Unsupported Ubuntu version: $VERSION_ID"
+        exit 1
+        ;;
+esac
+
+case "$(dpkg --print-architecture)" in
+    amd64)
+        MONGO_ARCH="x86_64"
+        ;;
+    arm64)
+        MONGO_ARCH="arm64"
+        ;;
+    *)
+        echo "Unsupported CPU architecture."
+        exit 1
+        ;;
+esac
+
+TOOLS_PACKAGE="mongodb-database-tools-ubuntu${UBUNTU_VERSION}-${MONGO_ARCH}-${MONGO_TOOLS_VERSION}.deb"
+
+TOOLS_URL="https://fastdl.mongodb.org/tools/db/${TOOLS_PACKAGE}"
+
+cd /tmp
+
+curl -fL "$TOOLS_URL" -o "$TOOLS_PACKAGE"
+
+sudo dpkg -i "$TOOLS_PACKAGE"
+
+sudo apt-get --fix-broken install -y
+
+rm -f "$TOOLS_PACKAGE"
+
+mongodump --version
+
+# ---------- CREATE BACKUP DIRECTORY ----------
+
+echo "Preparing backup directory..."
+
+sudo mkdir -p "$BACKUP_DIR"
+
+sudo chown ubuntu:ubuntu "$BACKUP_DIR"
+
+sudo chmod 750 "$BACKUP_DIR"
+
+# ---------- COLLECT MONGODB CREDENTIALS ----------
+
+echo
+echo "=========================================="
+echo " MongoDB Configuration"
+echo "=========================================="
+
+echo "Enter the NEW MongoDB Atlas connection URI."
+echo "Use a URL-encoded password in the URI."
+echo
+
+read -r -s -p "MongoDB URI: " MONGO_URI
+echo
+
+if [[ -z "$MONGO_URI" ]]; then
+    echo "MongoDB URI cannot be empty."
+    exit 1
+fi
+
+if [[ ! "$MONGO_URI" =~ ^mongodb(\+srv)?:// ]]; then
+    echo "Invalid MongoDB URI."
+    exit 1
+fi
+
+if [[ "$MONGO_URI" =~ [[:space:]] ]]; then
+    echo "MongoDB URI must not contain whitespace."
+    exit 1
+fi
+
+echo "Saving protected MongoDB configuration..."
+
+sudo install -o root -g root -m 600 /dev/null "$ENV_FILE"
+
+printf 'MONGO_URI=%s\nMONGO_DB=%s\nS3_BUCKET=%s\nBACKUP_DELAY_SECONDS=%s\n' \
+    "$MONGO_URI" \
+    "$MONGO_DB" \
+    "$S3_BUCKET" \
+    "$BACKUP_DELAY_SECONDS" \
+    | sudo tee "$ENV_FILE" > /dev/null
+
+unset MONGO_URI
+
+# ---------- INSTALL NODE.JS DEPENDENCY ----------
+
+echo "Installing MongoDB Node.js driver..."
+
+cd "$HOME_DIR"
+
+npm install --no-save "mongodb@${MONGODB_DRIVER_VERSION}"
+
+# ---------- CREATE MONGODB BACKUP SCRIPT ----------
+
+echo "Creating MongoDB backup script..."
+
+cat <<'BACKUP_EOF' > "$BACKUP_SCRIPT"
+#!/usr/bin/env bash
+
+set -Eeuo pipefail
+
+BACKUP_DIR="/home/ubuntu/mongodb_backup"
+
+: "${MONGO_URI:?MONGO_URI is missing}"
+: "${MONGO_DB:?MONGO_DB is missing}"
+: "${S3_BUCKET:?S3_BUCKET is missing}"
+
+# Prevent concurrent backup processes.
+
+exec 9>"$BACKUP_DIR/.backup.lock"
+
+if ! flock -n 9; then
+    echo "Another MongoDB backup is already running."
+    exit 0
+fi
+
+TIMESTAMP=$(TZ='Asia/Kolkata' date +"%d-%m-%Y_%H-%M-%S")
+
+DUMP_DIR="$BACKUP_DIR/dump_$TIMESTAMP"
+
+mkdir -m 700 "$DUMP_DIR"
+
+echo "=========================================="
+echo " MongoDB Backup Started"
+echo " Database: $MONGO_DB"
+echo " Time: $TIMESTAMP"
+echo "=========================================="
+
+echo "Creating MongoDB dump..."
+
+if ! mongodump \
+    --uri="$MONGO_URI" \
+    --db="$MONGO_DB" \
+    --out="$DUMP_DIR" \
+    --numParallelCollections=1
+then
+    echo "ERROR: MongoDB dump failed."
+    echo "Local files retained at: $DUMP_DIR"
+    exit 1
+fi
+
+echo "MongoDB dump completed."
+
+echo "Uploading backup to S3..."
+
+if ! aws s3 cp \
+    "$DUMP_DIR/" \
+    "$S3_BUCKET/$TIMESTAMP/" \
+    --recursive
+then
+    echo "ERROR: S3 upload failed."
+    echo "Local backup retained at: $DUMP_DIR"
+    exit 1
+fi
+
+echo "S3 upload completed."
+
+echo "Removing local backup files..."
+
+rm -rf -- "$DUMP_DIR"
+
+echo "=========================================="
+echo " MongoDB Backup Completed Successfully"
+echo " S3: $S3_BUCKET/$TIMESTAMP/"
+echo "=========================================="
+BACKUP_EOF
+
+chmod 750 "$BACKUP_SCRIPT"
+
+# ---------- CREATE CHANGE STREAM LISTENER ----------
+
+echo "Creating MongoDB Change Stream Listener..."
+
+cat <<'LISTENER_EOF' > "$LISTENER_SCRIPT"
+
+const { MongoClient } = require("mongodb");
+const { spawn } = require("node:child_process");
+
+const uri = process.env.MONGO_URI;
+const dbName = process.env.MONGO_DB || "frissly_prod";
+
+const backupScript = "/home/ubuntu/mongo_backup.sh";
+
+const delaySeconds = Number(
+    process.env.BACKUP_DELAY_SECONDS || 60
+);
+
+if (!uri) {
+    console.error("MONGO_URI is missing.");
+    process.exit(1);
+}
+
+const client = new MongoClient(uri, {
+    maxPoolSize: 3,
+    minPoolSize: 0,
+    serverSelectionTimeoutMS: 15000
+});
+
+let changeStream = null;
+let backupTimer = null;
+let backupRunning = false;
+let backupPending = false;
+let backupChild = null;
+let shuttingDown = false;
+
+// --------------------------------------------------
+// SCHEDULE BACKUP
+// First change starts a 60-second window.
+// Further changes in the same window are combined.
+// --------------------------------------------------
+
+function scheduleBackup() {
+
+    if (shuttingDown) return;
+
+    if (backupRunning) {
+        backupPending = true;
+        return;
+    }
+
+    if (backupTimer) {
+        return;
+    }
+
+    console.log(
+        `Backup scheduled in ${delaySeconds} seconds.`
+    );
+
+    backupTimer = setTimeout(() => {
+
+        backupTimer = null;
+
+        runBackup();
+
+    }, delaySeconds * 1000);
+}
+
+// --------------------------------------------------
+// EXECUTE BACKUP
+// --------------------------------------------------
+
+function runBackup() {
+
+    if (shuttingDown) return;
+
+    if (backupRunning) {
+        backupPending = true;
+        return;
+    }
+
+    backupRunning = true;
+
+    console.log("Starting MongoDB backup process...");
+
+    backupChild = spawn(
+        "/bin/bash",
+        [backupScript],
+        {
+            env: process.env,
+            stdio: "inherit"
+        }
+    );
+
+    let completed = false;
+
+    function finishBackup(code) {
+
+        if (completed) return;
+
+        completed = true;
+
+        backupRunning = false;
+        backupChild = null;
+
+        console.log(
+            `Backup process completed with exit code: ${code}`
+        );
+
+        if (backupPending && !shuttingDown) {
+
+            backupPending = false;
+
+            console.log(
+                `Another change was detected during backup. ` +
+                `Next backup scheduled in ${delaySeconds} seconds.`
+            );
+
+            backupTimer = setTimeout(() => {
+
+                backupTimer = null;
+
+                runBackup();
+
+            }, delaySeconds * 1000);
+        }
+    }
+
+    backupChild.on("error", (error) => {
+
+        console.error("Backup process error:", error);
+
+        finishBackup(1);
+    });
+
+    backupChild.on("close", (code) => {
+
+        finishBackup(code ?? 1);
+    });
+}
+
+// --------------------------------------------------
+// SHUTDOWN HANDLER
+// --------------------------------------------------
+
+async function shutdown(exitCode = 0) {
+
+    if (shuttingDown) return;
+
+    shuttingDown = true;
+
+    console.log("Stopping MongoDB Change Stream Listener...");
+
+    if (backupTimer) {
+        clearTimeout(backupTimer);
+        backupTimer = null;
+    }
+
+    if (backupChild) {
+        backupChild.kill("SIGTERM");
+    }
+
+    try {
+
+        if (changeStream) {
+            await changeStream.close();
+        }
+
+        await client.close();
+
+    } catch (error) {
+
+        console.error("Shutdown error:", error);
+
+    }
+
+    process.exit(exitCode);
+}
+
+process.on("SIGTERM", () => shutdown(0));
+
+process.on("SIGINT", () => shutdown(0));
+
+// --------------------------------------------------
+// CONNECT TO MONGODB AND WATCH DATABASE
+// --------------------------------------------------
+
+async function startListener() {
+
+    console.log("Connecting to MongoDB Atlas...");
+
+    await client.connect();
+
+    console.log("MongoDB connected successfully.");
+
+    const db = client.db(dbName);
+
+    changeStream = db.watch([], {
+        maxAwaitTimeMS: 1000
+    });
+
+    console.log(`Watching database: ${dbName}`);
+
+    changeStream.on("change", (change) => {
+
+        console.log(
+            "MongoDB change detected:",
+            change.operationType,
+            "Collection:",
+            change.ns?.coll || "unknown"
+        );
+
+        scheduleBackup();
+    });
+
+    changeStream.on("error", (error) => {
+
+        console.error("Change Stream error:", error);
+
+        shutdown(1);
+    });
+
+    console.log("MongoDB Change Stream Listener is active.");
+}
+
+startListener().catch(async (error) => {
+
+    console.error("MongoDB listener startup failed:", error);
+
+    await shutdown(1);
+});
+
+LISTENER_EOF
+
+sudo chown ubuntu:ubuntu "$LISTENER_SCRIPT"
+
+chmod 750 "$LISTENER_SCRIPT"
+
+# ---------- CREATE LISTENER SYSTEMD SERVICE ----------
+
+echo "Creating MongoDB listener systemd service..."
+
+sudo tee "$LISTENER_SERVICE" > /dev/null <<'SERVICE_EOF'
+[Unit]
+Description=MongoDB Change Stream Listener
+Wants=network-online.target
+After=network-online.target
+
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+
+User=ubuntu
+Group=ubuntu
+
+WorkingDirectory=/home/ubuntu
+
+Environment=NODE_ENV=production
+EnvironmentFile=/etc/mongo-listener.env
+
+ExecStart=/usr/bin/node --max-old-space-size=256 /home/ubuntu/mongo_listener.js
+
+Restart=on-failure
+RestartSec=15
+
+TimeoutStopSec=30
+KillMode=control-group
+
+UMask=0077
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+SERVICE_EOF
+
+# ---------- CREATE MANUAL BACKUP SYSTEMD SERVICE ----------
+
+echo "Creating MongoDB manual backup service..."
+
+sudo tee "$BACKUP_SERVICE" > /dev/null <<'SERVICE_EOF'
+[Unit]
+Description=MongoDB Manual Backup to S3
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+
+User=ubuntu
+Group=ubuntu
+
+WorkingDirectory=/home/ubuntu
+
+EnvironmentFile=/etc/mongo-listener.env
+
+ExecStart=/bin/bash /home/ubuntu/mongo_backup.sh
+
+UMask=0077
+
+StandardOutput=journal
+StandardError=journal
+SERVICE_EOF
+
+# ---------- SET PERMISSIONS ----------
+
+sudo chown root:root "$ENV_FILE"
+sudo chmod 600 "$ENV_FILE"
+
+sudo chown ubuntu:ubuntu "$BACKUP_SCRIPT" "$LISTENER_SCRIPT"
+
+chmod 750 "$BACKUP_SCRIPT" "$LISTENER_SCRIPT"
+
+# ---------- RELOAD SYSTEMD ----------
+
+echo "Reloading systemd..."
+
+sudo systemctl daemon-reload
+
+# ---------- ENABLE SERVICES ----------
+
+sudo systemctl enable mongo-listener.service
+
+# ---------- CHECK AWS IDENTITY ----------
+
+echo "Checking AWS credentials..."
+
+if aws sts get-caller-identity > /dev/null 2>&1; then
+    echo "AWS credentials are available."
+else
+    echo "WARNING: AWS credentials or EC2 IAM role are not available."
+    echo "Configure an EC2 instance profile with S3 upload permissions."
+fi
+
+# ---------- START LISTENER ----------
+
+echo "Starting MongoDB Change Stream Listener..."
+
+sudo systemctl reset-failed mongo-listener.service
+
+sudo systemctl start mongo-listener.service
+
+sleep 3
+
+echo
+echo "=========================================="
+echo " INSTALLATION COMPLETED"
+echo "=========================================="
+
+sudo systemctl status mongo-listener.service --no-pager || true
+
+echo
+echo "Node.js version:"
+node -v
+
+echo
+echo "MongoDB Tools:"
+mongodump --version
+
+echo
+echo "Swap status:"
+free -h
+
+echo
+echo "=========================================="
+echo " NEXT STEPS"
+echo "=========================================="
+
+echo "1. Check listener logs:"
+echo "   sudo journalctl -u mongo-listener -f"
+
+echo
+echo "2. Test a manual MongoDB backup:"
+echo "   sudo systemctl start mongo-backup.service"
+
+echo
+echo "3. Check backup logs:"
+echo "   sudo journalctl -u mongo-backup.service -n 100 --no-pager"
+
+echo
+echo "4. Check S3 backup files:"
+echo "   aws s3 ls $S3_BUCKET/ --recursive"
+
+echo
+echo "5. Check listener status:"
+echo "   sudo systemctl status mongo-listener"
+
+echo
+echo "Installation script finished."
+
+
+-> sudo systemctl status mongo-listener
+
+Test manual MongoDB backup
+sudo systemctl start mongo-backup.service
+sudo systemctl status mongo-backup.service
+sudo systemctl status mongo-backup.service --no-pager -l
+
+sudo journalctl -u mongo-backup.service -n 100 --no-pager
+
+-> Reference Chatgpt URL
+https://chatgpt.com/share/6af48ade-d70c-83ec-9942-faaac80908b7
