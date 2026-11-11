@@ -288,3 +288,109 @@ EXPOSE 7000
 
 CMD ["npx", "next", "start", "-H", "0.0.0.0", "-p", "7000"]
 
+
+
+
+# Frissly Production Dockerfile
+
+FROM node:20-bookworm-slim
+ 
+WORKDIR /app
+ 
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    ca-certificates \
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libnss3 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    xdg-utils \
+    wget \
+    gnupg \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+ 
+COPY package*.json ./
+COPY puppeteer.config.cjs ./
+ 
+RUN npm ci
+ 
+RUN npx puppeteer browsers install chrome
+ 
+COPY . .
+ 
+EXPOSE 4003
+ 
+CMD ["npm", "start"]
+
+
+# Adding Dynatrace Dockerfile
+
+
+FROM node:20-bookworm-slim
+
+WORKDIR /app
+
+# System dependencies required by Puppeteer / Chrome
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    make \
+    g++ \
+    ca-certificates \
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libnss3 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    xdg-utils \
+    wget \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install application dependencies
+COPY package*.json ./
+COPY puppeteer.config.cjs ./
+
+RUN npm ci
+
+# Install Chrome for Puppeteer
+RUN npx puppeteer browsers install chrome
+
+# Copy application source
+COPY . .
+
+# Dynatrace OneAgent code module for Node.js
+# Registry login must succeed before the Docker build
+COPY --from=vkm52698.live.dynatrace.com/linux/oneagent-codemodules:nodejs / /
+
+ENV LD_PRELOAD=/opt/dynatrace/oneagent/agent/lib64/liboneagentproc.so
+
+# Dynatrace release metadata
+ENV DT_RELEASE_PRODUCT=frissly-backend
+ENV DT_RELEASE_STAGE=uat
+ENV DT_RELEASE_VERSION=1.0.0
+
+EXPOSE 4003
+
+CMD ["npm", "start"]
