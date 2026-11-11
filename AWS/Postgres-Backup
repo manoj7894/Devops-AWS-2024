@@ -1,0 +1,28 @@
+# Check RDS connectivity
+Test-NetConnection YOUR_RDS_ENDPOINT -Port 5432
+
+# Creat the Directory
+New-Item -ItemType Directory -Force -Path "D:\RDS-Backups"
+
+# Enter your database password securely:
+$env:PGPASSWORD = Read-Host "Enter RDS PostgreSQL password" -AsSecureString | ForEach-Object {
+    [System.Net.NetworkCredential]::new("", $_).Password
+}
+
+pg_dump `
+  -h factory-dev-postgres.cda2gucm6obx.ap-south-1.rds.amazonaws.com `
+  -p 5432 `
+  -U postgresadmin `
+  -d factorydevdb `
+  -F c `
+  -f "D:\RDS-Backups\factorydevdb_backup.dump"
+
+# Verify the backup file
+Get-Item .\factorydevdb_backup.dump
+pg_restore -l "D:\RDS-Backups\factorydevdb_backup.dump"
+
+# Clear the password from your PowerShell session:
+Remove-Item Env:PGPASSWORD
+
+# Reference URL from Chatgpt
+https://chatgpt.com/share/6af48cdb-fb2c-83e8-8913-5f097428bf55
